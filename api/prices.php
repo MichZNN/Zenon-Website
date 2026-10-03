@@ -114,6 +114,7 @@ function normalize_pair(string $key, array $config, array $pair, int $timestamp,
         'timestamp' => $timestamp,
         'timestamp_human' => utc_timestamp($timestamp),
         'source' => $source,
+        'pricing_method' => $pair['pricingMethod'] ?? 'direct',
     ];
 }
 
@@ -148,6 +149,28 @@ foreach ($pairs as $key => $config) {
     $errors[$key] = $fresh['error'];
     if (is_array($cached) && isset($cached['timestamp'], $cached['pair'])) {
         $results[$key] = normalize_pair($key, $config, $cached['pair'], (int)$cached['timestamp'], 'stale-cache');
+    }
+}
+
+// The QSR/ZNN pair quotes QSR in ZNN, so USD per ZNN is USD per QSR
+// divided by ZNN per QSR. Use its timestamp to preserve cache freshness.
+if (isset($errors['wznn_weth'], $cache['wqsr_wznn']['pair'])) {
+    $quotePair = $cache['wqsr_wznn']['pair'];
+    $usd = $quotePair['priceUsd'] ?? null;
+    $native = $quotePair['priceNative'] ?? null;
+    $quoteAddress = strtolower($quotePair['quoteToken']['address'] ?? '');
+    if ($quoteAddress === '0xb2e96a63479c2edd2fd62b382c89d5ca79f572d3'
+        && is_numeric($usd) && is_numeric($native) && (float)$usd > 0 && (float)$native > 0) {
+        $timestamp = (int)$cache['wqsr_wznn']['timestamp'];
+        $derivedPair = [
+            'baseToken' => $quotePair['quoteToken'],
+            'priceUsd' => rtrim(rtrim(number_format((float)$usd / (float)$native, 8, '.', ''), '0'), '.'),
+            'pricingMethod' => 'derived-from-qsr-znn',
+        ];
+        $cache['wznn_weth'] = ['timestamp' => $timestamp, 'pair' => $derivedPair];
+        $cacheUpdated = true;
+        $source = time() - $timestamp < $cacheDuration ? 'derived' : 'stale-cache';
+        $results['wznn_weth'] = normalize_pair('wznn_weth', $pairs['wznn_weth'], $derivedPair, $timestamp, $source);
     }
 }
 

@@ -87,7 +87,7 @@ if (!empty($_GET['height'])) {
         &nbsp;
       <!-- <input type="search" name="count" class="form-control custom-input" placeholder="Count" aria-label="Search" value="<?php echo isset($_GET['count']) ? htmlspecialchars($_GET['count']) : ''; ?>"> -->
 
-      <button class="btn btn-outline-secondary ms-2 custom-btn" type="submit">
+      <button class="btn btn-outline-secondary ms-2 custom-btn" type="submit" aria-label="Search">
         <i class="fa-solid fa-magnifying-glass"></i>
       </button>
     </form>
@@ -96,6 +96,10 @@ if (!empty($_GET['height'])) {
 </header>
 
 <div class="container mt-2">
+  <div class="tool-intro">
+    <h1>Detailed momentums by height</h1>
+    <p>Explore detailed ledger momentums starting at a specified height.</p>
+  </div>
   <?php
     if (!$data_valid && $output) {
         echo '<div class="alert alert-warning">' . $output . '</div>' . PHP_EOL;

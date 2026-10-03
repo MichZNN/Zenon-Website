@@ -5,12 +5,12 @@ function divisor(string $raw, int $decimals): string
     if (function_exists('bcdiv')) {
         $divisor = bcpow('10', (string)$decimals, 0);
         $out     = bcdiv($raw, $divisor, $decimals);
-        return rtrim(rtrim($out, '0'), '.');
+        return strpos($out, '.') !== false ? rtrim(rtrim($out, '0'), '.') : $out;
     }
 
     $val = (float)$raw / pow(10, $decimals);
     $out = number_format($val, $decimals, '.', '');
-    return rtrim(rtrim($out, '0'), '.');
+    return strpos($out, '.') !== false ? rtrim(rtrim($out, '0'), '.') : $out;
 }
 
 /* STRING SHORTEN */
@@ -45,7 +45,11 @@ function api_get(string $url, int $timeout = 30): array
     }
 
     curl_close($ch);
-    return (array)json_decode($response, true);
+    $data = json_decode($response, true);
+    if (json_last_error() !== JSON_ERROR_NONE || !is_array($data)) {
+        return ['error' => 'The API returned an invalid JSON response.'];
+    }
+    return $data;
 }
 
 /* BUILD URL */
@@ -180,3 +184,41 @@ function detailed_momentums_by_height(int $height = 1,
     return api_get($url);
 }
 
+
+/* ACCOUNT BALANCES */
+function account_info_by_address(string $address): array
+{
+    return api_get(build_url('https://zenonhub.io/api/nom/ledger/get-account-info-by-address', ['address' => $address]));
+}
+
+/* SENTINEL REGISTRATION AND REVOCATION STATUS */
+function sentinel_by_owner(string $address): array
+{
+    return api_get(build_url('https://zenonhub.io/api/nom/sentinel/get-by-owner', ['address' => $address]));
+}
+
+function format_cooldown($seconds): string
+{
+    if (!is_numeric($seconds) || (float)$seconds < 0) {
+        return 'Unknown';
+    }
+    $remaining = (int)$seconds;
+    $weeks = intdiv($remaining, 604800);
+    $remaining %= 604800;
+    $days = intdiv($remaining, 86400);
+    $minutes = intdiv($remaining % 86400, 60);
+    return $weeks . ' ' . ($weeks === 1 ? 'week' : 'weeks') . ', '
+        . $days . ' ' . ($days === 1 ? 'day' : 'days') . ', '
+        . $minutes . ' ' . ($minutes === 1 ? 'minute' : 'minutes');
+}
+
+function status_badge($value): string
+{
+    $boolean = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+    if ($value === null || $boolean === null) {
+        return '<span class="status-unknown">Unknown</span>';
+    }
+    $label = $boolean ? 'true' : 'false';
+    $icon = $boolean ? 'circle-check' : 'circle-xmark';
+    return '<span class="status-' . $label . '"><i class="fa-solid fa-' . $icon . '" aria-hidden="true"></i> ' . $label . '</span>';
+}

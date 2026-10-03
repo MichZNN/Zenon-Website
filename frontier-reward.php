@@ -6,7 +6,9 @@ require_once 'functions.php';
 
 $page     = isset($_GET['page']) && (int)$_GET['page'] >= 1 ? (int)$_GET['page'] : 1;
 $per_page = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 25;
-$type     = isset($_GET['type']) ? trim($_GET['type']) : 'pillar';
+$type     = isset($_GET['type']) && is_string($_GET['type']) ? trim($_GET['type']) : 'pillar';
+$per_page = in_array($per_page, [10, 25, 50, 100, 200], true) ? $per_page : 25;
+$type = in_array($type, ['pillar', 'sentinel', 'stake', 'liquidity'], true) ? $type : 'pillar';
 
 $data_valid  = false;
 $output      = '';
@@ -55,11 +57,11 @@ if (!empty($_GET['address'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Rewards per epoch by address">
-    <meta property="og:title" content="Frontier Reward - Zenon Network">
+    <meta property="og:title" content="Frontier Rewards - Zenon Network">
     <meta property="og:url" content="https://zenon.turmin.com/frontier-reward.php">
     <meta property="og:description" content="Rewards per epoch by address">
     <meta property="og:locale" content="en_EN">
-    <title>Frontier Reward - Zenon Network</title>
+    <title>Frontier Rewards - Zenon Network</title>
     <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
@@ -71,37 +73,32 @@ if (!empty($_GET['address'])) {
 <body>
 
 <header class="py-3 custom-header tool-header">
-  <div class="container tool-header-inner">
-    <a class="btn home-btn" href="index.php" aria-label="Home">
-      <i class="fa-solid fa-house"></i>
-    </a>
-    <form method="GET" class="tool-search-form" id="searchForm">
-      <input type="search" name="address" class="form-control custom-input" placeholder="Type address" aria-label="Search" value="<?php echo isset($_GET['address']) ? htmlspecialchars($_GET['address']) : ''; ?>">
-      
-      <select name="per_page" class="form-select ms-2 w-auto custom-select custom-select-per-page" onchange="this.form.submit();">
-          <option value="10"<?php if($per_page == 10) echo ' selected'; ?>>10</option>
-          <option value="25"<?php if($per_page == 25) echo ' selected'; ?>>25</option>
-          <option value="50"<?php if($per_page == 50) echo ' selected'; ?>>50</option>
-          <option value="100"<?php if($per_page == 100) echo ' selected'; ?>>100</option>
-          <option value="200"<?php if($per_page == 200) echo ' selected'; ?>>200</option>
-      </select>
-      
-      <select name="type" class="form-select ms-2 w-auto custom-select custom-select-type" onchange="this.form.submit();">
-          <option value="pillar"<?php if($type === 'pillar') echo ' selected'; ?>>Pillar</option>
-          <option value="sentinel"<?php if($type === 'sentinel') echo ' selected'; ?>>Sentinel</option>
-          <option value="stake"<?php if($type === 'stake') echo ' selected'; ?>>Stake</option>
-          <option value="liquidity"<?php if($type === 'liquidity') echo ' selected'; ?>>Liquidity</option>
-      </select>
-      
-      <button class="btn btn-outline-secondary ms-2 custom-btn" type="submit">
-        <i class="fa-solid fa-magnifying-glass"></i>
-      </button>
+  <div class="container tool-header-inner frontier-header-inner">
+    <a class="btn home-btn" href="index.php" aria-label="Home"><i class="fa-solid fa-house" aria-hidden="true"></i></a>
+    <form method="GET" class="tool-search-form frontier-search-form" id="searchForm">
+      <input type="search" name="address" class="form-control custom-input" placeholder="Type address" aria-label="Zenon address" value="<?php echo isset($_GET['address']) && is_string($_GET['address']) ? htmlspecialchars($_GET['address']) : ''; ?>">
+      <div class="frontier-filters">
+        <select name="type" class="form-select custom-select" aria-label="Reward type" onchange="this.form.submit();">
+          <?php foreach (['pillar', 'sentinel', 'stake', 'liquidity'] as $reward_type): ?>
+            <option value="<?= $reward_type ?>"<?= $type === $reward_type ? ' selected' : '' ?>><?= ucfirst($reward_type) ?></option>
+          <?php endforeach; ?>
+        </select>
+        <select name="per_page" class="form-select custom-select" aria-label="Results per page" onchange="this.form.submit();">
+          <?php foreach ([10, 25, 50, 100, 200] as $page_size): ?>
+            <option value="<?= $page_size ?>"<?= $per_page === $page_size ? ' selected' : '' ?>><?= $page_size ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+      <button class="btn custom-btn" type="submit" aria-label="Search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
     </form>
-
   </div>
 </header>
 
 <div class="container mt-2">
+  <div class="tool-intro">
+    <h1>Frontier rewards</h1>
+    <p>Explore rewards per epoch for an address, filtered by reward type.</p>
+  </div>
   <?php
   if ($data_valid) {
       echo '<h1 class="responsive-title">' . htmlspecialchars($address) . '</h1>' . PHP_EOL;
@@ -109,6 +106,7 @@ if (!empty($_GET['address'])) {
       echo '<div class="alert alert-warning">' . $output . '</div>' . PHP_EOL;
   }
   ?>
+  <div class="table-responsive frontier-results">
   <table class="table">
       <thead>
           <tr>
@@ -125,6 +123,7 @@ if (!empty($_GET['address'])) {
           ?>
       </tbody>
   </table>
+  </div>
   
   <?php if ($data_valid) : 
       $base_url = '?address=' . urlencode($address) . '&per_page=' . $per_page . '&type=' . urlencode($type);

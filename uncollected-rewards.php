@@ -6,9 +6,11 @@ require_once 'functions.php';
 
 $data_valid  = false;
 $output      = '';
+$errors = [];
+$address = isset($_GET['address']) && is_string($_GET['address']) ? trim($_GET['address']) : '';
 
 if (!empty($_GET['address'])) {
-    $address = trim($_GET['address']);
+
 
     if (strlen($address) >= 40 && preg_match('/^[a-z0-9]+$/i', $address)) {
 
@@ -17,7 +19,7 @@ if (!empty($_GET['address'])) {
         foreach ($types as $type) {
             $data_array = uncollected_rewards($address, $type);
 
-            if (isset($data_array['data']) && is_array($data_array['data'])) {
+            if (isset($data_array['data']['znnAmount'], $data_array['data']['qsrAmount'])) {
                 $data = $data_array['data'];
                 $output .= '<tr>' . PHP_EOL .
                             '<td>' . ucwords($type) . '</td>' . PHP_EOL .
@@ -27,14 +29,14 @@ if (!empty($_GET['address'])) {
                 $data_valid = true;
             } else {
                 if (isset($data_array['title'])) {
-                    $output = htmlspecialchars($data_array['title']);
+                    $errors[] = ucwords($type) . ': ' . htmlspecialchars($data_array['title']);
                 } else {
-                    $output = 'No valid data received.';
+                    $errors[] = ucwords($type) . ': No valid data received.';
                 }
             }
         }
     } else {
-        $output = 'Invalid address';
+        $errors[] = 'Invalid address';
     }
 }
 ?>
@@ -60,13 +62,11 @@ if (!empty($_GET['address'])) {
 
 <header class="py-3 custom-header tool-header">
   <div class="container tool-header-inner">
-    <a class="btn home-btn" href="index.php" aria-label="Home">
-      <i class="fa-solid fa-house"></i>
-    </a>
+    <a class="btn home-btn" href="index.php" aria-label="Home"><i class="fa-solid fa-house" aria-hidden="true"></i></a>
     <form method="GET" class="tool-search-form" id="searchForm">
-      <input type="search" name="address" class="form-control custom-input" placeholder="Type address" aria-label="Search" value="<?php echo isset($_GET['address']) ? htmlspecialchars($_GET['address']) : ''; ?>">
+      <input type="search" name="address" class="form-control custom-input" placeholder="Type address" aria-label="Search" value="<?php echo isset($_GET['address']) ? htmlspecialchars($address) : ''; ?>">
       
-      <button class="btn btn-outline-secondary ms-2 custom-btn" type="submit">
+      <button class="btn btn-outline-secondary ms-2 custom-btn" type="submit" aria-label="Search">
         <i class="fas fa-search"></i>
       </button>
     </form>
@@ -74,12 +74,17 @@ if (!empty($_GET['address'])) {
   </div>
 </header>
 
-<div class="container mt-2">
+<main class="container mt-2">
+  <div class="tool-intro">
+    <h1>Uncollected rewards</h1>
+    <p>View pending ZNN and QSR rewards from Pillars, Sentinels, staking and liquidity for an address.</p>
+  </div>
   <?php
   if ($data_valid) {
       echo '<h1 class="responsive-title">' . htmlspecialchars($address) . '</h1>' . PHP_EOL;
-  } elseif ($output) {
-      echo '<div class="alert alert-warning">' . $output . '</div>' . PHP_EOL;
+  }
+  foreach ($errors as $error) {
+      echo '<div class="alert alert-warning">' . $error . '</div>' . PHP_EOL;
   }
   ?>
   <table class="table">
@@ -99,7 +104,7 @@ if (!empty($_GET['address'])) {
       </tbody>
   </table>
 
-</div>
+</main>
 <script src="lib/bootstrap@5.3.6/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,0 +1,73 @@
+{
+    "wqsr_wznn": {
+        "timestamp": 1791036832,
+        "pair": {
+            "chainId": "ethereum",
+            "dexId": "uniswap",
+            "url": "https://dexscreener.com/ethereum/0xe6c61425d0383c1cde02a49365945f48ebf0ea0c",
+            "pairAddress": "0xe6c61425D0383c1cde02A49365945f48Ebf0eA0C",
+            "labels": [
+                "v2"
+            ],
+            "baseToken": {
+                "address": "0x96546AFE4a21515A3a30CD3fd64A70eB478DC174",
+                "name": "Wrapped QSR",
+                "symbol": "wQSR"
+            },
+            "quoteToken": {
+                "address": "0xb2e96a63479C2Edd2FD62b382c89D5CA79f572d3",
+                "name": "Wrapped ZNN",
+                "symbol": "wZNN"
+            },
+            "priceNative": "0.1145",
+            "priceUsd": "0.01680",
+            "txns": {
+                "m5": {
+                    "buys": 0,
+                    "sells": 0
+                },
+                "h1": {
+                    "buys": 0,
+                    "sells": 0
+                },
+                "h6": {
+                    "buys": 0,
+                    "sells": 0
+                },
+                "h24": {
+                    "buys": 1,
+                    "sells": 1
+                }
+            },
+            "volume": {
+                "h24": 165.44,
+                "h6": 0,
+                "h1": 0,
+                "m5": 0
+            },
+            "priceChange": {
+                "h24": -19.37
+            },
+            "liquidity": {
+                "usd": 1479.87,
+                "base": 44022,
+                "quote": 5041.6374
+            },
+            "fdv": 24276,
+            "marketCap": 24276,
+            "pairCreatedAt": 1687429943000
+        }
+    },
+    "wznn_weth": {
+        "timestamp": 1791036832,
+        "pair": {
+            "baseToken": {
+                "address": "0xb2e96a63479C2Edd2FD62b382c89D5CA79f572d3",
+                "name": "Wrapped ZNN",
+                "symbol": "wZNN"
+            },
+            "priceUsd": "0.14672489",
+            "pricingMethod": "derived-from-qsr-znn"
+        }
+    }
+}

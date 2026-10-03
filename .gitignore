@@ -1,11 +1,14 @@
 # Extra
 Scripts/
 _bin/
+img/_/
+.codex
+.plans
 *.csv
 *.txt
-img/_/
 _*
 !__init__.py
+*.ps1
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

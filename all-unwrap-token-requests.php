@@ -107,6 +107,10 @@ if (isset($data_array['data']['list']) && is_array($data_array['data']['list']))
 </header>
 
 <div class="container mt-2">
+  <div class="tool-intro">
+    <h1>All unwrap token requests</h1>
+    <p>Browse bridge unwrap requests across all destination addresses.</p>
+  </div>
   <?php
     if (!$data_valid && $output) {
         echo '<div class="alert alert-warning">' . $output . '</div>' . PHP_EOL;

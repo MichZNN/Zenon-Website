@@ -91,7 +91,7 @@ if (!empty($_GET['address'])) {
     <form method="GET" class="tool-search-form" id="searchForm">
       <input type="search" name="address" class="form-control custom-input" placeholder="Type address" aria-label="Search" value="<?php echo isset($_GET['address']) ? htmlspecialchars($_GET['address']) : ''; ?>">
       
-      <button class="btn btn-outline-secondary ms-2 custom-btn" type="submit">
+      <button class="btn btn-outline-secondary ms-2 custom-btn" type="submit" aria-label="Search">
         <i class="fas fa-search"></i>
       </button>
     </form>
@@ -100,6 +100,10 @@ if (!empty($_GET['address'])) {
 </header>
 
 <div class="container mt-2">
+  <div class="tool-intro">
+    <h1>Liquidity stake entries</h1>
+    <p>View liquidity staking entries for an address.</p>
+  </div>
   <?php
   if ($data_valid) {
       echo '<h1 class="responsive-title">' . htmlspecialchars($address) . '</h1>' . PHP_EOL;

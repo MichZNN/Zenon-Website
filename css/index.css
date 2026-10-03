@@ -15,10 +15,10 @@ body.homepage {
 .logo-wrap {
     width: clamp(210px, 46vmin, 650px);
     margin: 0 auto;
-    filter: drop-shadow(0 0 24px rgba(111, 243, 77, 0.26));
 }
 
 .logo {
+    filter: drop-shadow(0 0 24px rgba(111, 243, 77, 0.26));
     display: block;
     width: 100%;
     height: auto;
@@ -31,7 +31,11 @@ body.homepage {
     font-weight: 500;
     letter-spacing: 0;
     text-transform: uppercase;
+    white-space: nowrap;
+    line-height: 1.2;
 }
+
+.homepage-kicker span { display: inline-block; }
 
 .navbar-custom {
     background-color: rgba(111, 243, 77, 0.96);

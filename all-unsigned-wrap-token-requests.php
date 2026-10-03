@@ -161,6 +161,10 @@ if (isset($data_array['title'])) {
 </header>
 
 <div class="container mt-2">
+  <div class="tool-intro">
+    <h1>All unsigned wrap token requests</h1>
+    <p>Browse bridge wrap requests awaiting signatures.</p>
+  </div>
   <?php
     if (!$data_valid && $output) {
         echo '<div class="alert alert-warning">' . $output . '</div>' . PHP_EOL;
