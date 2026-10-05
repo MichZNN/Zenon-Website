@@ -56,9 +56,8 @@ foreach ($addresses as $address) {
 
     <?php foreach ($results as $result): ?>
     <section class="address-result">
-        <h2 class="responsive-title"><?= htmlspecialchars($result['address'], ENT_QUOTES, 'UTF-8') ?></h2>
         <?php if ($result['error'] !== ''): ?>
-            <p class="alert alert-warning mt-2"><?= htmlspecialchars($result['error'], ENT_QUOTES, 'UTF-8') ?></p>
+            <p class="alert alert-warning mt-2"><strong title="<?= htmlspecialchars($result['address'], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars(str_shorten($result['address'], 3, 3), ENT_QUOTES, 'UTF-8') ?></strong>: <?= htmlspecialchars($result['error'], ENT_QUOTES, 'UTF-8') ?></p>
         <?php else:
             $data = $result['data'];
             // Accept the display keys and the native node API field names.
@@ -67,14 +66,20 @@ foreach ($addresses as $address) {
             $cooldown = $data['Revoke cooldown'] ?? $data['revokeCooldown'] ?? null;
             $active = $data['active'] ?? $data['Active'] ?? $data['isActive'] ?? null;
         ?>
-            <table class="table mt-2">
-                <thead><tr><th scope="col">Registered (UTC)</th><th scope="col">Revocable</th><th scope="col">Cooldown</th><th scope="col">Active</th></tr></thead>
-                <tbody><tr>
-                    <td><?= is_numeric($registered) && (float)$registered >= 0 ? gmdate('Y-m-d\TH:i:s\Z', (int)$registered) : 'Unknown' ?></td>
-                    <td><?= status_badge($revocable) ?></td>
-                    <td><?= format_cooldown($cooldown) ?></td>
-                    <td><?= status_badge($active) ?></td>
-                </tr></tbody>
+            <table class="table sentinel-status-table">
+                <caption class="visually-hidden">Sentinel status for <?= htmlspecialchars($result['address'], ENT_QUOTES, 'UTF-8') ?></caption>
+                <colgroup><col><col><col><col><col><col></colgroup>
+                <tbody>
+                    <tr>
+                        <td colspan="3"><span class="sentinel-field-label">Address</span><span title="<?= htmlspecialchars($result['address'], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars(str_shorten($result['address'], 3, 3), ENT_QUOTES, 'UTF-8') ?></span></td>
+                        <td colspan="3"><span class="sentinel-field-label">Registered (UTC)</span><?= is_numeric($registered) && (float)$registered >= 0 ? gmdate('Y-m-d\TH:i:s\Z', (int)$registered) : 'Unknown' ?></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><span class="sentinel-field-label">Revocable</span><?= status_badge($revocable) ?></td>
+                        <td colspan="2"><span class="sentinel-field-label">Cooldown</span><?= format_cooldown($cooldown) ?></td>
+                        <td colspan="2"><span class="sentinel-field-label">Active</span><?= status_badge($active) ?></td>
+                    </tr>
+                </tbody>
             </table>
         <?php endif; ?>
     </section>

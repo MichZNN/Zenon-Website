@@ -21,7 +21,7 @@ The [Detailed momentums by height](detailed-momentums-by-height.php) page displa
 
 Network data is retrieved from Zenon Hub. Search results use URL parameters, allowing queries to be bookmarked or shared. Multi-address lookups retain successful results when another address fails.
 
-The Sentinel revocation page displays status; it does not submit revocation transactions. Registration timestamps use ISO 8601 UTC, and cooldowns are shown in weeks, days and minutes.
+The Sentinel revocation page displays status; it does not submit revocation transactions. Registration timestamps use ISO 8601 UTC, and cooldowns are shown in weeks, days, hours and minutes.
 
 Prices are retrieved from DexScreener and cached for ten minutes. When the direct ZNN price source is unavailable, ZNN/USD is calculated from the QSR/ZNN pair. Cached prices can be displayed when the provider cannot be refreshed.
 
