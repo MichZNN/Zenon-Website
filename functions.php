@@ -206,9 +206,12 @@ function format_cooldown($seconds): string
     $weeks = intdiv($remaining, 604800);
     $remaining %= 604800;
     $days = intdiv($remaining, 86400);
-    $minutes = intdiv($remaining % 86400, 60);
+    $remaining %= 86400;
+    $hours = intdiv($remaining, 3600);
+    $minutes = intdiv($remaining % 3600, 60);
     return $weeks . ' ' . ($weeks === 1 ? 'week' : 'weeks') . ', '
         . $days . ' ' . ($days === 1 ? 'day' : 'days') . ', '
+        . $hours . ' ' . ($hours === 1 ? 'hour' : 'hours') . ', '
         . $minutes . ' ' . ($minutes === 1 ? 'minute' : 'minutes');
 }
 

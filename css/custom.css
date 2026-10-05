@@ -382,3 +382,13 @@ a:hover, a:focus { color: #F91690; }
 .tool-intro { margin-block: 1.25rem 1.5rem; }
 .tool-intro h1 { margin: 0 0 0.5rem; font-size: clamp(1.35rem, 3vw, 1.8rem); font-weight: 600; }
 .tool-intro p { margin: 0; max-width: 70ch; color: #b9b9b9; line-height: 1.6; }
+
+.sentinel-status-table {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    white-space: normal;
+}
+.sentinel-status-table td { padding: 0.75rem 0.5rem; overflow-wrap: anywhere; vertical-align: top; }
+.sentinel-status-table tbody tr:first-child td { border-bottom-color: #0061EB; }
+.sentinel-field-label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
