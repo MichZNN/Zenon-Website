@@ -57,7 +57,7 @@ foreach ($addresses as $address) {
     <?php foreach ($results as $result): ?>
     <section class="address-result">
         <?php if ($result['error'] !== ''): ?>
-            <p class="alert alert-warning mt-2"><strong title="<?= htmlspecialchars($result['address'], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars(str_shorten($result['address'], 3, 3), ENT_QUOTES, 'UTF-8') ?></strong>: <?= htmlspecialchars($result['error'], ENT_QUOTES, 'UTF-8') ?></p>
+            <p class="alert alert-warning mt-2"><strong title="<?= htmlspecialchars($result['address'], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars(str_shorten($result['address'], 6, 6), ENT_QUOTES, 'UTF-8') ?></strong>: <?= htmlspecialchars($result['error'], ENT_QUOTES, 'UTF-8') ?></p>
         <?php else:
             $data = $result['data'];
             // Accept the display keys and the native node API field names.
@@ -71,7 +71,7 @@ foreach ($addresses as $address) {
                 <colgroup><col><col><col><col><col><col></colgroup>
                 <tbody>
                     <tr>
-                        <td colspan="3"><span class="sentinel-field-label">Address</span><span title="<?= htmlspecialchars($result['address'], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars(str_shorten($result['address'], 3, 3), ENT_QUOTES, 'UTF-8') ?></span></td>
+                        <td colspan="3"><span class="sentinel-field-label">Address</span><span title="<?= htmlspecialchars($result['address'], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars(str_shorten($result['address'], 6, 6), ENT_QUOTES, 'UTF-8') ?></span></td>
                         <td colspan="3"><span class="sentinel-field-label">Registered (UTC)</span><?= is_numeric($registered) && (float)$registered >= 0 ? gmdate('Y-m-d\TH:i:s\Z', (int)$registered) : 'Unknown' ?></td>
                     </tr>
                     <tr>
