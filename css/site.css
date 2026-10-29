@@ -572,3 +572,8 @@ a:hover, a:focus { color: var(--text); }
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* ---------- Error pages ---------- */
+
+.error-page { padding-block: clamp(2rem, 8vw, 5rem) 3rem; }
+.error-page .lookup-btn { display: inline-flex; width: auto; text-decoration: none; }
