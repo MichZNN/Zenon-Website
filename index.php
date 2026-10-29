@@ -19,7 +19,7 @@
       <ul class="tool-grid">
         <?php foreach (TOOLS as $slug => $tool): if ($tool['group'] !== $group_key) continue; ?>
           <li>
-            <a class="tool-card" href="<?= e($slug) ?>.php" data-category="<?= e($tool['category']) ?>">
+            <a class="tool-card" href="/<?= e($slug) ?>" data-category="<?= e($tool['category']) ?>">
               <span class="tool-card-category"><?= e(CATEGORY_NAMES[$tool['category']]) ?></span>
               <span class="tool-card-title"><?= e($tool['title']) ?></span>
               <span class="tool-card-summary"><?= e($tool['summary']) ?></span>

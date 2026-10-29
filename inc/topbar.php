@@ -2,7 +2,7 @@
 <a class="skip-link" href="#content">Skip to content</a>
 <header class="topbar">
   <div class="container topbar-inner">
-    <a class="brand" href="index.php">
+    <a class="brand" href="/">
       <img src="img/mark.svg" alt="" width="28" height="28">
       <span><?= e(SITE_NAME) ?></span>
     </a>
@@ -26,7 +26,7 @@
           <ul>
             <?php foreach (TOOLS as $slug => $item): if ($item['group'] !== $group_key) continue; ?>
               <li>
-                <a href="<?= e($slug) ?>.php" data-category="<?= e($item['category']) ?>"<?= $slug === $active_slug ? ' aria-current="page"' : '' ?>>
+                <a href="/<?= e($slug) ?>" data-category="<?= e($item['category']) ?>"<?= $slug === $active_slug ? ' aria-current="page"' : '' ?>>
                   <?= e($item['title']) ?>
                 </a>
               </li>

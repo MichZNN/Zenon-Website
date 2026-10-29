@@ -4,7 +4,7 @@ require_once __DIR__ . '/tools.php';
 $tool        = current_tool();
 $page_title  = $tool ? $tool['title'] . ' – ' . SITE_NAME : SITE_NAME;
 $page_desc   = $tool ? $tool['intro'] : 'Look up rewards, balances, Sentinels, bridge requests and momentums.';
-$page_url    = 'https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/' . ($tool ? current_tool_slug() . '.php' : '');
+$page_url    = 'https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/' . ($tool ? current_tool_slug() : '');
 ?>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
