@@ -206,7 +206,6 @@ a:hover, a:focus { color: var(--text); }
 
 .hero {
     padding-block: clamp(2.75rem, 9vw, 6rem) clamp(2rem, 5vw, 3.5rem);
-    max-width: 52rem;
 }
 .hero h1 {
     margin: 0;
@@ -219,7 +218,6 @@ a:hover, a:focus { color: var(--text); }
 }
 .hero p {
     margin: 1.25rem 0 0;
-    max-width: 34rem;
     color: var(--muted);
     font-size: clamp(1.02rem, 2.2vw, 1.15rem);
 }
@@ -314,7 +312,7 @@ a:hover, a:focus { color: var(--text); }
 
 .page { padding-bottom: 3rem; }
 
-.tool-intro { padding-block: clamp(1.75rem, 5vw, 3rem) 1.25rem; max-width: 46rem; }
+.tool-intro { padding-block: clamp(1.75rem, 5vw, 3rem) 1.25rem; }
 .tool-category {
     display: inline-flex;
     align-items: center;
@@ -341,7 +339,6 @@ a:hover, a:focus { color: var(--text); }
 }
 .tool-lede {
     margin: 0.75rem 0 0;
-    max-width: 62ch;
     color: var(--muted);
 }
 
@@ -498,6 +495,8 @@ a:hover, a:focus { color: var(--text); }
     padding-block: 1.5rem 2rem;
 }
 .site-footer p { margin: 0; color: var(--muted); font-size: 0.875rem; }
+.site-footer a { color: var(--text); }
+.site-footer a:hover, .site-footer a:focus { color: var(--balances); }
 
 /* ---------- Narrower screens ---------- */
 

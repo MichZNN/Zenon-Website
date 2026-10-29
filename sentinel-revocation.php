@@ -73,5 +73,6 @@ foreach ($addresses as $address) {
     </section>
     <?php endforeach; ?>
 </main>
+<?php include __DIR__ . '/inc/footer.php'; ?>
 </body>
 </html>

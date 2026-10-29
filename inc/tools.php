@@ -65,7 +65,7 @@ const TOOLS = [
         'summary'  => 'Every bridge unwrap request, with redeemed and open totals.',
         'intro'    => 'Browse bridge unwrap requests across all destination addresses.',
         'category' => 'bridge',
-        'input'    => 'No input',
+        'input'    => 'No address needed',
         'group'    => 'network',
     ],
     'all-unsigned-wrap-token-requests' => [
@@ -73,7 +73,7 @@ const TOOLS = [
         'summary'  => 'Bridge wrap requests still waiting for signatures.',
         'intro'    => 'Browse bridge wrap requests awaiting signatures.',
         'category' => 'bridge',
-        'input'    => 'No input',
+        'input'    => 'No address needed',
         'group'    => 'network',
     ],
     'detailed-momentums-by-height' => [
@@ -81,7 +81,7 @@ const TOOLS = [
         'summary'  => 'Momentum details starting from a ledger height.',
         'intro'    => 'Explore detailed ledger momentums starting at a specified height.',
         'category' => 'ledger',
-        'input'    => 'Block height',
+        'input'    => 'Momentum height',
         'group'    => 'network',
     ],
 ];
