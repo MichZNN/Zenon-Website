@@ -13,6 +13,24 @@ function divisor(string $raw, int $decimals): string
     return strpos($out, '.') !== false ? rtrim(rtrim($out, '0'), '.') : $out;
 }
 
+/* ADD AMOUNTS
+ * Adds two decimal amounts as strings, so totals never turn into floats
+ * (which print small numbers as 6.96E-5 and lose precision on large ones). */
+function add_amount($total, $amount, int $scale = 18): string
+{
+    $total  = (string)$total;
+    $amount = (string)$amount;
+
+    if (function_exists('bcadd')) {
+        $sum = bcadd($total, $amount, $scale);
+    } else {
+        // Without bcmath, round to the precision of the inputs to hide float noise.
+        $places = max(strlen(strrchr($total, '.') ?: '.') - 1, strlen(strrchr($amount, '.') ?: '.') - 1);
+        $sum = number_format((float)$total + (float)$amount, min($places, $scale), '.', '');
+    }
+    return strpos($sum, '.') !== false ? rtrim(rtrim($sum, '0'), '.') : $sum;
+}
+
 /* STRING SHORTEN */
 function str_shorten(string $str, int $frontLen = 5, int $backLen = 5, string $ellipsis = '...'): string
 {

@@ -37,7 +37,7 @@ if (!empty($_GET['address'])) {
                     }
                 }
 
-                $total_amount += divisor($data['amount'], $token_decimals);
+                $total_amount = add_amount($total_amount, divisor($data['amount'], $token_decimals));
 
                 $output .= '<tr>' . PHP_EOL .
                 '<td>' . divisor($data['amount'], $token_decimals) . '</td>' . PHP_EOL .
