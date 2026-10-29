@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Momentum Tools</title>
+  <rect width="64" height="64" rx="16" fill="#151D2B"/>
+  <rect x="12" y="15" width="26" height="9" rx="4.5" fill="#5EE6A8"/>
+  <rect x="19" y="27.5" width="33" height="9" rx="4.5" fill="#7CB7FF"/>
+  <rect x="12" y="40" width="22" height="9" rx="4.5" fill="#FFB86B"/>
+</svg>

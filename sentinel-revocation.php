@@ -29,29 +29,17 @@ foreach ($addresses as $address) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Check Sentinel registration, revocation eligibility and cooldowns for multiple Zenon addresses.">
-    <title>Sentinel Revocation - Zenon Network</title>
-    <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
-    <link href="lib/bootstrap@5.3.6/css/bootstrap.min.css" rel="stylesheet">
-    <link href="lib/fontawesome@6.7.2/css/all.min.css" rel="stylesheet">
-    <link href="css/custom.css" rel="stylesheet">
+<?php include __DIR__ . '/inc/head.php'; ?>
 </head>
-<body>
-<header class="py-3 custom-header tool-header">
-    <div class="container tool-header-inner">
-        <a class="btn home-btn" href="index.php" aria-label="Home"><i class="fa-solid fa-house" aria-hidden="true"></i></a>
-        <form method="GET" class="tool-search-form">
-            <textarea name="address" class="form-control custom-textarea" rows="3" placeholder="Addresses separated by commas, spaces or new lines" aria-label="Sentinel owner addresses" required><?= htmlspecialchars($normalized_input, ENT_QUOTES, 'UTF-8') ?></textarea>
-            <button class="btn custom-btn" type="submit" aria-label="Search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
-        </form>
-    </div>
-</header>
-<main class="container mt-2">
-  <div class="tool-intro">
-    <h1>Sentinel revocation</h1>
-    <p>Check registration, revocation eligibility, cooldown and active status for multiple Sentinel owners. Registration times are shown in UTC.</p>
+<body data-category="<?= e(current_tool()['category']) ?>">
+<?php include __DIR__ . '/inc/topbar.php'; ?>
+<main id="content" class="container page">
+  <?php tool_intro(); ?>
+  <div class="lookup">
+    <form method="GET" class="lookup-form">
+              <textarea name="address" class="form-control lookup-input lookup-textarea" rows="3" placeholder="Addresses separated by commas, spaces or new lines" aria-label="Sentinel owner addresses" required><?= htmlspecialchars($normalized_input, ENT_QUOTES, 'UTF-8') ?></textarea>
+              <button class="btn lookup-btn" type="submit"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span>Look up</span></button>
+          </form>
   </div>
 
     <?php foreach ($results as $result): ?>
@@ -85,5 +73,6 @@ foreach ($addresses as $address) {
     </section>
     <?php endforeach; ?>
 </main>
+<?php include __DIR__ . '/inc/footer.php'; ?>
 </body>
 </html>

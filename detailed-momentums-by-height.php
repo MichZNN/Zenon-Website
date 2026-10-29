@@ -59,46 +59,18 @@ if (!empty($_GET['height'])) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta property="og:title" content=" - Zenon Network">
-    <meta property="og:url" content="https://zenon.turmin.com/detailed-momentums-by-height.php">
-    <meta property="og:description" content="">
-    <meta property="og:locale" content="en_EN">
-    <title> - Zenon Network</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
-    <link href="lib/bootstrap@5.3.6/css/bootstrap.min.css" rel="stylesheet">
-    <link href="lib/fontawesome@6.7.2/css/all.min.css" rel="stylesheet">
-    <link href="lib/twbs@1.13.1/icons/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="css/custom.css" rel="stylesheet">
+<?php include __DIR__ . '/inc/head.php'; ?>
 </head>
-<body>
+<body data-category="<?= e(current_tool()['category']) ?>">
+<?php include __DIR__ . '/inc/topbar.php'; ?>
 
-<header class="py-3 custom-header tool-header">
-  <div class="container tool-header-inner">
-    <a class="btn home-btn" href="index.php" aria-label="Home">
-      <i class="fa-solid fa-house"></i>
-    </a>
-    <form method="GET" class="tool-search-form" id="searchForm">
-      <input type="search" name="height" class="form-control custom-input" placeholder="Height" aria-label="Search" value="<?php echo isset($_GET['height']) ? htmlspecialchars($_GET['height']) : ''; ?>">
-        &nbsp;
-      <!-- <input type="search" name="count" class="form-control custom-input" placeholder="Count" aria-label="Search" value="<?php echo isset($_GET['count']) ? htmlspecialchars($_GET['count']) : ''; ?>"> -->
-
-      <button class="btn btn-outline-secondary ms-2 custom-btn" type="submit" aria-label="Search">
-        <i class="fa-solid fa-magnifying-glass"></i>
-      </button>
-    </form>
-
-  </div>
-</header>
-
-<div class="container mt-2">
-  <div class="tool-intro">
-    <h1>Detailed momentums by height</h1>
-    <p>Explore detailed ledger momentums starting at a specified height.</p>
+<main id="content" class="container page">
+  <?php tool_intro(); ?>
+  <div class="lookup">
+    <form method="GET" class="lookup-form" id="searchForm">
+        <input type="search" name="height" class="form-control lookup-input" placeholder="Momentum height, e.g. 1000000" aria-label="Search" value="<?php echo isset($_GET['height']) ? htmlspecialchars($_GET['height']) : ''; ?>">
+        <button class="btn lookup-btn" type="submit"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span>Look up</span></button>
+      </form>
   </div>
   <?php
     if (!$data_valid && $output) {
@@ -125,7 +97,7 @@ if (!empty($_GET['height'])) {
       </tbody>
   </table>
   
-</div>
-<script src="lib/bootstrap@5.3.6/js/bootstrap.bundle.min.js"></script>
+</main>
+<?php include __DIR__ . '/inc/footer.php'; ?>
 </body>
 </html>

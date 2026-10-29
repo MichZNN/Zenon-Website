@@ -130,41 +130,13 @@ if (isset($data_array['title'])) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="All unsigned wrap token requests">
-    <meta property="og:title" content="All Unsigned Wrap Token Requests - Zenon Network">
-    <meta property="og:url" content="https://zenon.turmin.com/all-unsigned-wrap-token-requests.php">
-    <meta property="og:description" content="All Unsigned Wrap Token Requests">
-    <meta property="og:image" content="https://zenon.turmin.com/card.php?t=All Unsigned Wrap Token Requests&dn1=Total ZNN Unredeemed&dv1=<?= $total_amount_znn_unredeemed; ?> &dn2=Total QSR Unredeemed&dv2=<?= $total_amount_qsr_unredeemed; ?>&ts=<?= time(); ?>">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:locale" content="en_EN">
-    <meta name="twitter:card" content="summary_large_image">
-    <title>All Unsigned Wrap Token Requests - Zenon Network</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
-    <link href="lib/bootstrap@5.3.6/css/bootstrap.min.css" rel="stylesheet">
-    <link href="lib/fontawesome@6.7.2/css/all.min.css" rel="stylesheet">
-    <link href="lib/twbs@1.13.1/icons/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="css/custom.css" rel="stylesheet">
+<?php include __DIR__ . '/inc/head.php'; ?>
 </head>
-<body>
+<body data-category="<?= e(current_tool()['category']) ?>">
+<?php include __DIR__ . '/inc/topbar.php'; ?>
 
-<header class="py-3 custom-header tool-header">
-  <div class="container tool-header-inner">
-    <a class="btn home-btn" href="index.php" aria-label="Home">
-      <i class="fa-solid fa-house"></i>
-    </a>
-  </div>
-</header>
-
-<div class="container mt-2">
-  <div class="tool-intro">
-    <h1>All unsigned wrap token requests</h1>
-    <p>Browse bridge wrap requests awaiting signatures.</p>
-  </div>
+<main id="content" class="container page">
+  <?php tool_intro(); ?>
   <?php
     if (!$data_valid && $output) {
         echo '<div class="alert alert-warning">' . $output . '</div>' . PHP_EOL;
@@ -256,7 +228,7 @@ if (isset($data_array['title'])) {
         ?>
         </tbody>
     </table>
-</div>
-<script src="lib/bootstrap@5.3.6/js/bootstrap.bundle.min.js"></script>
+</main>
+<?php include __DIR__ . '/inc/footer.php'; ?>
 </body>
 </html>
