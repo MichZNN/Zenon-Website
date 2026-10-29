@@ -116,41 +116,18 @@ if (!empty($_GET['address']) && is_string($_GET['address'])) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Balance by address">
-    <meta property="og:title" content="Balance - Zenon Network">
-    <meta property="og:url" content="https://zenon.turmin.com/balance-by-address.php">
-    <meta property="og:description" content="Balance by address">
-    <meta property="og:locale" content="en_EN">
-    <title>Balance - Zenon Network</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
-    <link href="lib/bootstrap@5.3.6/css/bootstrap.min.css" rel="stylesheet">
-    <link href="lib/fontawesome@6.7.2/css/all.min.css" rel="stylesheet">
-    <link href="css/custom.css" rel="stylesheet">
+<?php include __DIR__ . '/inc/head.php'; ?>
 </head>
-<body>
+<body data-category="<?= e(current_tool()['category']) ?>">
+<?php include __DIR__ . '/inc/topbar.php'; ?>
 
-<header class="py-3 custom-header tool-header">
-  <div class="container tool-header-inner">
-    <a class="btn home-btn" href="index.php" aria-label="Home"><i class="fa-solid fa-house" aria-hidden="true"></i></a>
-    <form method="GET" class="tool-search-form" id="searchForm">
-      <textarea name="address" class="form-control custom-textarea" rows="4" placeholder="Multiple addresses (comma or space separated)" aria-label="Multiple addresses"><?php echo htmlspecialchars($normalized_input); ?></textarea>
-      
-      <button class="btn btn-outline-secondary ms-2 custom-btn" type="submit" aria-label="Search">
-        <i class="fas fa-search"></i>
-      </button>
-    </form>
-
-  </div>
-</header>
-
-<main class="container mt-2">
-  <div class="tool-intro">
-    <h1>Balance by address</h1>
-    <p>View token balances for multiple addresses and their combined totals.</p>
+<main id="content" class="container page">
+  <?php tool_intro(); ?>
+  <div class="lookup">
+    <form method="GET" class="lookup-form" id="searchForm">
+        <textarea name="address" class="form-control lookup-input lookup-textarea" rows="4" placeholder="Multiple addresses (comma or space separated)" aria-label="Multiple addresses"><?php echo htmlspecialchars($normalized_input); ?></textarea>
+        <button class="btn lookup-btn" type="submit"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span>Look up</span></button>
+      </form>
   </div>
   <?php
   if ($error_message) {
@@ -164,7 +141,7 @@ if (!empty($_GET['address']) && is_string($_GET['address'])) {
   }
   ?>
 </main>
-<script src="lib/bootstrap@5.3.6/js/bootstrap.bundle.min.js"></script>
+<?php include __DIR__ . '/inc/footer.php'; ?>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('searchForm');

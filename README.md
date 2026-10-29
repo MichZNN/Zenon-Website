@@ -1,6 +1,6 @@
-# Zenon Network tools
+# Momentum Tools
 
-A website for exploring Zenon Network balances, rewards, Sentinel status and bridge requests. The home page provides links to network resources and displays ZNN and QSR prices in USD.
+A website for looking up balances, rewards, Sentinel status, bridge requests and momentums. The home page lists every tool as a card, grouped by whether it needs an address, and the top bar shows ZNN and QSR prices in USD.
 
 ## Tools
 
@@ -25,15 +25,27 @@ The Sentinel revocation page displays status; it does not submit revocation tran
 
 Prices are retrieved from DexScreener and cached for ten minutes. When the direct ZNN price source is unavailable, ZNN/USD is calculated from the QSR/ZNN pair. Cached prices can be displayed when the provider cannot be refreshed.
 
-## Brand palette
+## Structure
 
-| Color | Hex |
+Shared parts live in `inc/`: `tools.php` is the single list of tools (title, description, category, input) used by the home page, the menu and each page's title; `head.php`, `topbar.php` and `footer.php` are included by every page. Styling is in `css/site.css`, and `js/site.js` handles the menu, prices and phone-friendly tables. To add a tool, add a PHP page and an entry in `inc/tools.php`.
+
+## Palette
+
+Each tool category has its own colour, used for its card, page accent and buttons.
+
+| Role | Hex |
 | --- | --- |
-| Intergalactic Black | `#151515` |
-| Zenon Green | `#6FF34D` |
-| Quasar Blue | `#0061EB` |
-| Plasma Pink | `#F91690` |
-| SYRIUS Green | `#00D557` |
+| Background | `#0E1420` |
+| Panel | `#151D2B` |
+| Text | `#E9EEF5` |
+| Muted text | `#94A0B4` |
+| Rewards | `#5EE6A8` |
+| Balances & staking | `#7CB7FF` |
+| Sentinels | `#C4A3FF` |
+| Bridge | `#FFB86B` |
+| Ledger | `#A9B4C6` |
+
+Fonts: Bricolage Grotesque and Inter, both under the SIL Open Font License, self-hosted in `fonts/`.
 
 ## License
 
