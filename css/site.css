@@ -572,3 +572,15 @@ a:hover, a:focus { color: var(--text); }
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* ---------- Error pages ---------- */
+
+.error-page { padding-block: clamp(2rem, 8vw, 5rem) 3rem; }
+.error-page .lookup-btn { display: inline-flex; width: auto; text-decoration: none; }
+
+/* Used by js/site.js to measure a table's width when nothing wraps. */
+.table.measuring { display: table !important; width: auto !important; }
+.table.measuring th, .table.measuring td { white-space: nowrap !important; }
+
+/* Totals tables (label + amount, no header): amounts right-aligned on one line. */
+.table:not(:has(thead)):not(.sentinel-status-table) td:last-child { text-align: right; white-space: nowrap; }

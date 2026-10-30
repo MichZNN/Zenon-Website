@@ -55,6 +55,7 @@
     }
 
     /* Give each cell the name of its column, so tables can stack into rows on phones. */
+    const stackTables = [];
     document.querySelectorAll('main table').forEach((table) => {
         const headers = Array.from(table.querySelectorAll('thead th')).map((th) => th.textContent.trim());
         if (!headers.length) return;
@@ -69,9 +70,6 @@
             }
         });
 
-        /* Narrow tables fit a phone as they are; wide ones stack into records. */
-        if (headers.length < 5) return;
-        table.classList.add('stackable');
         table.querySelectorAll('tbody tr').forEach((row) => {
             const cells = Array.from(row.children);
             if (cells.length === 1 && headers.length > 1) {
@@ -82,5 +80,30 @@
                 if (headers[index]) cell.setAttribute('data-label', headers[index]);
             });
         });
+        stackTables.push({ table, columns: headers.length });
     });
+
+    /* On phones, tables that don't fit unwrapped stack into records; tables that fit stay tables. */
+    function layoutTables() {
+        const phone = window.matchMedia('(max-width: 680px)').matches;
+        stackTables.forEach(({ table, columns }) => {
+            table.classList.remove('stackable');
+            if (!phone) return;
+            if (columns >= 5) {
+                table.classList.add('stackable');
+                return;
+            }
+            table.classList.add('measuring');
+            const tooWide = table.scrollWidth > table.parentElement.clientWidth + 1;
+            table.classList.remove('measuring');
+            if (tooWide) table.classList.add('stackable');
+        });
+    }
+    layoutTables();
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(layoutTables, 150);
+    });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(layoutTables);
 })();

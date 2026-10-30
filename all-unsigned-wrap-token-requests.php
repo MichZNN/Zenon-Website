@@ -94,19 +94,19 @@ if (isset($data_array['title'])) {
 
         if (isset($data['redeemed'])) {
             if($token_symbol === 'ZNN') {
-                $total_amount_znn_redeemed += $amount;
+                $total_amount_znn_redeemed = add_amount($total_amount_znn_redeemed, $amount);
             } else if($token_symbol === 'QSR') {
-                $total_amount_qsr_redeemed += $amount;
+                $total_amount_qsr_redeemed = add_amount($total_amount_qsr_redeemed, $amount);
             } else if($token_symbol === 'ZNNETHLP') {
-                $total_amount_znnethlp_redeemed += $amount;
+                $total_amount_znnethlp_redeemed = add_amount($total_amount_znnethlp_redeemed, $amount);
             }
         } else {
             if($token_symbol === 'ZNN') {
-                $total_amount_znn_unredeemed += $amount;
+                $total_amount_znn_unredeemed = add_amount($total_amount_znn_unredeemed, $amount);
             } else if($token_symbol === 'QSR') {
-                $total_amount_qsr_unredeemed += $amount;
+                $total_amount_qsr_unredeemed = add_amount($total_amount_qsr_unredeemed, $amount);
             } else if($token_symbol === 'ZNNETHLP') {
-                $total_amount_znnethlp_unredeemed += $amount;
+                $total_amount_znnethlp_unredeemed = add_amount($total_amount_znnethlp_unredeemed, $amount);
             }
         }
 
