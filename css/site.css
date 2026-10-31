@@ -724,3 +724,5 @@ a:hover, a:focus { color: var(--text); }
     .pagination .page-status .page-link { min-width: 5.5rem; padding-inline: 0.75rem; color: var(--text); font-weight: 600; cursor: default; }
     .pagination .page-status .page-link:hover { background: var(--panel); }
 }
+.table td.nowrap { white-space: nowrap; }
+@media (min-width: 681px) { .table td.nowrap-wide { white-space: nowrap; } }

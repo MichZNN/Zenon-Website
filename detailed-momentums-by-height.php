@@ -78,8 +78,10 @@ if (!ctype_digit($height_query) || (int)$height_query < 1) {
         $genesis_file = __DIR__ . '/data/genesis-momentum.json';
         if ($height === '1' && is_file($genesis_file)) {
             $genesis = json_decode((string)file_get_contents($genesis_file), true);
-            $genesis_blocks = $genesis['accountBlocks'] ?? null;
-            unset($genesis['accountBlocks']);
+            $genesis_blocks_file = __DIR__ . '/data/genesis-accountblocks.json';
+            $genesis_blocks = is_file($genesis_blocks_file)
+                ? json_decode((string)file_get_contents($genesis_blocks_file), true)
+                : null;
             $data_array = ['data' => ['count' => 1, 'list' => [['momentum' => $genesis, 'accountBlocks' => $genesis_blocks]]]];
         } else {
             $data_array = detailed_momentums_by_height($height, 1);
@@ -176,35 +178,48 @@ if (!ctype_digit($height_query) || (int)$height_query < 1) {
       <?php elseif (!$account_blocks): ?>
         <p class="tx-note">This momentum contains no account blocks.</p>
       <?php else: ?>
+        <?php
+          $block_pages = max(1, (int)ceil(count($account_blocks) / BLOCKS_PER_PAGE));
+          $block_page  = min(max(1, $page), $block_pages);
+          $first_block = ($block_page - 1) * BLOCKS_PER_PAGE;
+          $block_rows  = [];
+          foreach (array_slice($account_blocks, $first_block, BLOCKS_PER_PAGE) as $block) {
+              if (!is_array($block)) continue;
+              [$block_amount, $block_symbol] = block_transfer($block);
+              $block_type = (int)($block['blockType'] ?? 0);
+              $block_rows[] = [
+                  'type'    => BLOCK_TYPE_NAMES[$block_type] ?? ('Type ' . $block_type),
+                  'address' => (string)($block['address'] ?? ''),
+                  'to'      => in_array($block_type, [2, 4], true) ? (string)($block['toAddress'] ?? '') : '',
+                  'amount'  => $block_amount,
+                  'symbol'  => $block_symbol,
+                  'hash'    => (string)($block['hash'] ?? ''),
+              ];
+          }
+          // Leave out columns that are empty for every block on this page (genesis blocks have no recipient or amount).
+          $show_to     = (bool)array_filter(array_column($block_rows, 'to'));
+          $show_amount = (bool)array_filter(array_column($block_rows, 'amount'));
+          // With only type, address and hash there is room for the full values.
+          $short = fn(string $value): string => ($show_to || $show_amount) ? str_shorten($value, 6, 6) : $value;
+        ?>
         <table class="table">
           <thead>
             <tr>
               <th scope="col">Type</th>
               <th scope="col">Address</th>
-              <th scope="col">To</th>
-              <th scope="col">Amount</th>
-              <th scope="col">Token</th>
+              <?php if ($show_to): ?><th scope="col">To</th><?php endif; ?>
+              <?php if ($show_amount): ?><th scope="col">Amount</th><th scope="col">Token</th><?php endif; ?>
               <th scope="col">Hash</th>
             </tr>
           </thead>
           <tbody>
-            <?php
-              $block_pages = max(1, (int)ceil(count($account_blocks) / BLOCKS_PER_PAGE));
-              $block_page  = min(max(1, $page), $block_pages);
-              $first_block = ($block_page - 1) * BLOCKS_PER_PAGE;
-              foreach (array_slice($account_blocks, $first_block, BLOCKS_PER_PAGE) as $block): if (!is_array($block)) continue;
-              [$block_amount, $block_symbol] = block_transfer($block);
-              $block_type = (int)($block['blockType'] ?? 0);
-              $block_address = (string)($block['address'] ?? '');
-              $block_to = in_array($block_type, [2, 4], true) ? (string)($block['toAddress'] ?? '') : '';
-              $block_hash = (string)($block['hash'] ?? ''); ?>
+            <?php foreach ($block_rows as $row): ?>
               <tr>
-                <td><?= htmlspecialchars(BLOCK_TYPE_NAMES[$block_type] ?? ('Type ' . $block_type)) ?></td>
-                <td><span title="<?= htmlspecialchars($block_address) ?>"><?= htmlspecialchars(str_shorten($block_address, 6, 6)) ?></span></td>
-                <td><?php if ($block_to !== ''): ?><span title="<?= htmlspecialchars($block_to) ?>"><?= htmlspecialchars(str_shorten($block_to, 6, 6)) ?></span><?php endif; ?></td>
-                <td><?= htmlspecialchars($block_amount) ?></td>
-                <td><?= htmlspecialchars($block_symbol) ?></td>
-                <td><span title="<?= htmlspecialchars($block_hash) ?>"><?= htmlspecialchars(str_shorten($block_hash, 6, 6)) ?></span></td>
+                <td class="nowrap"><?= htmlspecialchars($row['type']) ?></td>
+                <td class="nowrap-wide"><span title="<?= htmlspecialchars($row['address']) ?>"><?= htmlspecialchars($short($row['address'])) ?></span></td>
+                <?php if ($show_to): ?><td><?php if ($row['to'] !== ''): ?><span title="<?= htmlspecialchars($row['to']) ?>"><?= htmlspecialchars(str_shorten($row['to'], 6, 6)) ?></span><?php endif; ?></td><?php endif; ?>
+                <?php if ($show_amount): ?><td><?= htmlspecialchars($row['amount']) ?></td><td><?= htmlspecialchars($row['symbol']) ?></td><?php endif; ?>
+                <td><span title="<?= htmlspecialchars($row['hash']) ?>"><?= htmlspecialchars($short($row['hash'])) ?></span></td>
               </tr>
             <?php endforeach; ?>
           </tbody>
