@@ -13,8 +13,27 @@ $output      = '';
 $has_next_page = false;
 $total_pages = 1;
 
-if (!empty($_GET['height'])) {
-    $height = trim($_GET['height']);
+/* Readable text hidden in a momentum's base64 data field, or '' when there is none. */
+function decoded_momentum_data(array $momentum): string
+{
+    if (isset($momentum['dataDecoded'])) {
+        return (string)$momentum['dataDecoded'];
+    }
+    $raw = base64_decode((string)($momentum['data'] ?? ''), true);
+    if ($raw === false || $raw === '' || !mb_check_encoding($raw, 'UTF-8') || preg_match('/[\x00-\x08\x0E-\x1F\x7F]/', $raw)) {
+        return '';
+    }
+    return $raw;
+}
+
+// Without a height, show the genesis momentum: it is stored, so it loads instantly.
+$height_input = isset($_GET['height']) && is_string($_GET['height']) ? trim($_GET['height']) : '';
+$height_query = $height_input === '' ? '1' : $height_input;
+
+if (!ctype_digit($height_query) || (int)$height_query < 1) {
+    $output = 'Enter a momentum height: a whole number from 1 upwards.';
+} else {
+    $height = (string)(int)$height_query;
     // $count = !empty($_GET['count']) ? (int)$_GET['count'] : 25;
 
     // if (strlen($address) >= 40 && preg_match('/^[a-z0-9]+$/i', $address)) {
@@ -44,12 +63,12 @@ if (!empty($_GET['height'])) {
                 if (isset($momentum)) {
 
                     $output .= '<tr>' . PHP_EOL .
-                       '<td>' . (isset($momentum['hash']) ? str_shorten($momentum['hash']) : '') . '</td>' . PHP_EOL .
+                       '<td>' . (isset($momentum['hash']) ? htmlspecialchars($momentum['hash']) : '') . '</td>' . PHP_EOL .
                        '<td>' . (isset($momentum['previousHash']) ? htmlspecialchars($momentum['previousHash']) : '') . '</td>' . PHP_EOL .
                        '<td>' . (isset($momentum['height']) ? htmlspecialchars($momentum['height']) : '') . '</td>' . PHP_EOL .
                        '<td>' . (isset($momentum['timestamp']) ? (new DateTime('@' . $momentum['timestamp']))->format('Y-m-d H:i:s') : '') . '</td>' . PHP_EOL .
                        '<td><span class="cell-stack">' . (isset($momentum['data']) ? htmlspecialchars($momentum['data']) : '')
-                            . (isset($momentum['dataDecoded']) ? '<span class="data-decoded"><span>Decoded</span>' . htmlspecialchars($momentum['dataDecoded']) . '</span>' : '')
+                            . (decoded_momentum_data($momentum) !== '' ? '<span class="data-decoded"><span>Decoded</span>' . htmlspecialchars(decoded_momentum_data($momentum)) . '</span>' : '')
                             . '</span></td>' . PHP_EOL .
                        '<td>' . (isset($momentum['producer']) ? htmlspecialchars($momentum['producer']) : '') . '</td>' . PHP_EOL .
                     '</tr>' . PHP_EOL;
@@ -77,7 +96,7 @@ if (!empty($_GET['height'])) {
   <?php tool_intro(); ?>
   <div class="lookup">
     <form method="GET" class="lookup-form" id="searchForm">
-        <input type="search" name="height" class="form-control lookup-input" placeholder="Momentum height, e.g. 1000000" aria-label="Search" value="<?php echo isset($_GET['height']) ? htmlspecialchars($_GET['height']) : ''; ?>">
+        <input type="search" name="height" class="form-control lookup-input" placeholder="1" aria-label="Momentum height" inputmode="numeric" value="<?php echo htmlspecialchars($height_input); ?>">
         <button class="btn lookup-btn" type="submit"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span>Look up</span></button>
       </form>
   </div>
