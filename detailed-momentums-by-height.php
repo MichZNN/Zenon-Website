@@ -219,17 +219,24 @@ if (!ctype_digit($height_query) || (int)$height_query < 1) {
           <p class="tx-note">Account blocks <?= number_format($first_block + 1) ?>–<?= number_format(min($first_block + BLOCKS_PER_PAGE, count($account_blocks))) ?> of <?= number_format(count($account_blocks)) ?></p>
           <nav aria-label="Account block pages">
             <ul class="pagination justify-content-center">
+              <li class="page-item page-mobile<?= $block_page <= 1 ? ' disabled' : '' ?>">
+                <a class="page-link" href="<?= $block_page <= 1 ? '#' : e(blocks_page_url($link_height, 1)) ?>" aria-label="First page"><i class="bi bi-chevron-double-left fs-6" aria-hidden="true"></i></a>
+              </li>
               <li class="page-item<?= $block_page <= 1 ? ' disabled' : '' ?>">
                 <a class="page-link" href="<?= $block_page <= 1 ? '#' : e(blocks_page_url($link_height, $block_page - 1)) ?>" aria-label="Previous page"><i class="bi bi-chevron-left fs-6" aria-hidden="true"></i></a>
               </li>
               <?php $previous = 0; foreach ($window as $n): ?>
-                <?php if ($n > $previous + 1): ?><li class="page-item disabled"><span class="page-link">…</span></li><?php endif; ?>
-                <li class="page-item<?= $n === $block_page ? ' active' : '' ?>">
+                <?php if ($n > $previous + 1): ?><li class="page-item page-number disabled"><span class="page-link">…</span></li><?php endif; ?>
+                <li class="page-item page-number<?= $n === $block_page ? ' active' : '' ?>">
                   <a class="page-link" href="<?= e(blocks_page_url($link_height, $n)) ?>"<?= $n === $block_page ? ' aria-current="page"' : '' ?>><?= $n ?></a>
                 </li>
               <?php $previous = $n; endforeach; ?>
+              <li class="page-item page-mobile page-status" aria-hidden="true"><span class="page-link"><?= $block_page ?> / <?= $block_pages ?></span></li>
               <li class="page-item<?= $block_page >= $block_pages ? ' disabled' : '' ?>">
                 <a class="page-link" href="<?= $block_page >= $block_pages ? '#' : e(blocks_page_url($link_height, $block_page + 1)) ?>" aria-label="Next page"><i class="bi bi-chevron-right fs-6" aria-hidden="true"></i></a>
+              </li>
+              <li class="page-item page-mobile<?= $block_page >= $block_pages ? ' disabled' : '' ?>">
+                <a class="page-link" href="<?= $block_page >= $block_pages ? '#' : e(blocks_page_url($link_height, $block_pages)) ?>" aria-label="Last page"><i class="bi bi-chevron-double-right fs-6" aria-hidden="true"></i></a>
               </li>
             </ul>
           </nav>
