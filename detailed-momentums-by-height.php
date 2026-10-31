@@ -18,7 +18,14 @@ if (!empty($_GET['height'])) {
     // $count = !empty($_GET['count']) ? (int)$_GET['count'] : 25;
 
     // if (strlen($address) >= 40 && preg_match('/^[a-z0-9]+$/i', $address)) {
-        $data_array = detailed_momentums_by_height($height, 1);
+        // The genesis momentum (height 1) is too large to fetch in time; it never changes, so it is stored.
+        $genesis_file = __DIR__ . '/data/genesis-momentum.json';
+        if ($height === '1' && is_file($genesis_file)) {
+            $genesis = json_decode((string)file_get_contents($genesis_file), true);
+            $data_array = ['data' => ['count' => 1, 'list' => [['momentum' => $genesis]]]];
+        } else {
+            $data_array = detailed_momentums_by_height($height, 1);
+        }
 
         // Debug output
         // echo "<pre>"; var_dump($data_array); echo "</pre>";

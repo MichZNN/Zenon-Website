@@ -59,6 +59,38 @@
             });
     }
 
+    /* Current momentum height in the footer, refreshed every 10 seconds while the page is visible. */
+    const momentum = document.querySelector('[data-momentum] b');
+    if (momentum) {
+        const refresh = () => {
+            if (document.hidden) return;
+            fetch('/api/momentum.php', { cache: 'no-store' })
+                .then((response) => {
+                    if (!response.ok) throw new Error('Momentum request failed');
+                    return response.json();
+                })
+                .then((payload) => {
+                    const height = Number(payload.height);
+                    if (!Number.isFinite(height) || height <= 0) throw new Error('No height');
+                    momentum.textContent = height.toLocaleString('en-US');
+                    momentum.classList.remove('skeleton', 'skeleton-price');
+                    momentum.removeAttribute('aria-label');
+                    if (payload.timestamp) {
+                        momentum.title = 'Produced ' + new Date(payload.timestamp * 1000).toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
+                    }
+                })
+                .catch(() => {
+                    if (momentum.classList.contains('skeleton')) {
+                        momentum.textContent = '–';
+                        momentum.classList.remove('skeleton', 'skeleton-price');
+                    }
+                });
+        };
+        refresh();
+        setInterval(refresh, 10000);
+        document.addEventListener('visibilitychange', refresh);
+    }
+
     /* Lookups: leave empty fields out of the link, and show placeholders while the result loads. */
     document.querySelectorAll('.lookup-form').forEach((form) => {
         form.addEventListener('submit', (event) => {
