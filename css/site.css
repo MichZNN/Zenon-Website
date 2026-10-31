@@ -714,3 +714,15 @@ a:hover, a:focus { color: var(--text); }
 .account-blocks { margin-top: 2rem; }
 .section-title { display: flex; align-items: center; gap: 0.6rem; margin: 0 0 0.9rem; font-family: var(--display); font-size: 1.35rem; font-weight: 650; letter-spacing: -0.01em; }
 .section-count { padding: 0.15rem 0.55rem; border-radius: 999px; background: var(--panel-raised); color: var(--muted); font-family: var(--body); font-size: 0.8rem; font-weight: 600; }
+
+/* Pagination: page numbers on wide screens, a compact "5 / 141" row on phones */
+.pagination .page-mobile { display: none; }
+@media (max-width: 680px) {
+    .pagination:has(.page-mobile) { flex-wrap: nowrap; }
+    .pagination .page-mobile { display: block; }
+    .pagination .page-number { display: none; }
+    .pagination .page-status .page-link { min-width: 5.5rem; padding-inline: 0.75rem; color: var(--text); font-weight: 600; cursor: default; }
+    .pagination .page-status .page-link:hover { background: var(--panel); }
+}
+.table td.nowrap { white-space: nowrap; }
+@media (min-width: 681px) { .table td.nowrap-wide { white-space: nowrap; } }

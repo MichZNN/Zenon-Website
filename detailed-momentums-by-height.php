@@ -33,7 +33,17 @@ const BLOCK_TYPE_NAMES = [
     4 => 'Contract send',
     5 => 'Contract receive',
 ];
-const MAX_BLOCK_ROWS = 500;
+const BLOCKS_PER_PAGE = 100;
+
+/* Page links for the account blocks, keeping the height in the link. */
+function blocks_page_url(string $height, int $page): string
+{
+    $query = ['height' => $height];
+    if ($page > 1) {
+        $query['page'] = $page;
+    }
+    return '?' . http_build_query($query) . '#account-blocks-title';
+}
 
 /* Amount and token of an account block; a receive takes them from the send it receives. */
 function block_transfer(array $block): array
@@ -68,8 +78,10 @@ if (!ctype_digit($height_query) || (int)$height_query < 1) {
         $genesis_file = __DIR__ . '/data/genesis-momentum.json';
         if ($height === '1' && is_file($genesis_file)) {
             $genesis = json_decode((string)file_get_contents($genesis_file), true);
-            $genesis_blocks = $genesis['accountBlocks'] ?? null;
-            unset($genesis['accountBlocks']);
+            $genesis_blocks_file = __DIR__ . '/data/genesis-accountblocks.json';
+            $genesis_blocks = is_file($genesis_blocks_file)
+                ? json_decode((string)file_get_contents($genesis_blocks_file), true)
+                : null;
             $data_array = ['data' => ['count' => 1, 'list' => [['momentum' => $genesis, 'accountBlocks' => $genesis_blocks]]]];
         } else {
             $data_array = detailed_momentums_by_height($height, 1);
@@ -166,37 +178,83 @@ if (!ctype_digit($height_query) || (int)$height_query < 1) {
       <?php elseif (!$account_blocks): ?>
         <p class="tx-note">This momentum contains no account blocks.</p>
       <?php else: ?>
+        <?php
+          $block_pages = max(1, (int)ceil(count($account_blocks) / BLOCKS_PER_PAGE));
+          $block_page  = min(max(1, $page), $block_pages);
+          $first_block = ($block_page - 1) * BLOCKS_PER_PAGE;
+          $block_rows  = [];
+          foreach (array_slice($account_blocks, $first_block, BLOCKS_PER_PAGE) as $block) {
+              if (!is_array($block)) continue;
+              [$block_amount, $block_symbol] = block_transfer($block);
+              $block_type = (int)($block['blockType'] ?? 0);
+              $block_rows[] = [
+                  'type'    => BLOCK_TYPE_NAMES[$block_type] ?? ('Type ' . $block_type),
+                  'address' => (string)($block['address'] ?? ''),
+                  'to'      => in_array($block_type, [2, 4], true) ? (string)($block['toAddress'] ?? '') : '',
+                  'amount'  => $block_amount,
+                  'symbol'  => $block_symbol,
+                  'hash'    => (string)($block['hash'] ?? ''),
+              ];
+          }
+          // Leave out columns that are empty for every block on this page (genesis blocks have no recipient or amount).
+          $show_to     = (bool)array_filter(array_column($block_rows, 'to'));
+          $show_amount = (bool)array_filter(array_column($block_rows, 'amount'));
+          // With only type, address and hash there is room for the full values.
+          $short = fn(string $value): string => ($show_to || $show_amount) ? str_shorten($value, 6, 6) : $value;
+        ?>
         <table class="table">
           <thead>
             <tr>
               <th scope="col">Type</th>
               <th scope="col">Address</th>
-              <th scope="col">To</th>
-              <th scope="col">Amount</th>
-              <th scope="col">Token</th>
+              <?php if ($show_to): ?><th scope="col">To</th><?php endif; ?>
+              <?php if ($show_amount): ?><th scope="col">Amount</th><th scope="col">Token</th><?php endif; ?>
               <th scope="col">Hash</th>
             </tr>
           </thead>
           <tbody>
-            <?php foreach (array_slice($account_blocks, 0, MAX_BLOCK_ROWS) as $block): if (!is_array($block)) continue;
-              [$block_amount, $block_symbol] = block_transfer($block);
-              $block_type = (int)($block['blockType'] ?? 0);
-              $block_address = (string)($block['address'] ?? '');
-              $block_to = in_array($block_type, [2, 4], true) ? (string)($block['toAddress'] ?? '') : '';
-              $block_hash = (string)($block['hash'] ?? ''); ?>
+            <?php foreach ($block_rows as $row): ?>
               <tr>
-                <td><?= htmlspecialchars(BLOCK_TYPE_NAMES[$block_type] ?? ('Type ' . $block_type)) ?></td>
-                <td><span title="<?= htmlspecialchars($block_address) ?>"><?= htmlspecialchars(str_shorten($block_address, 6, 6)) ?></span></td>
-                <td><?php if ($block_to !== ''): ?><span title="<?= htmlspecialchars($block_to) ?>"><?= htmlspecialchars(str_shorten($block_to, 6, 6)) ?></span><?php endif; ?></td>
-                <td><?= htmlspecialchars($block_amount) ?></td>
-                <td><?= htmlspecialchars($block_symbol) ?></td>
-                <td><span title="<?= htmlspecialchars($block_hash) ?>"><?= htmlspecialchars(str_shorten($block_hash, 6, 6)) ?></span></td>
+                <td class="nowrap"><?= htmlspecialchars($row['type']) ?></td>
+                <td class="nowrap-wide"><span title="<?= htmlspecialchars($row['address']) ?>"><?= htmlspecialchars($short($row['address'])) ?></span></td>
+                <?php if ($show_to): ?><td><?php if ($row['to'] !== ''): ?><span title="<?= htmlspecialchars($row['to']) ?>"><?= htmlspecialchars(str_shorten($row['to'], 6, 6)) ?></span><?php endif; ?></td><?php endif; ?>
+                <?php if ($show_amount): ?><td><?= htmlspecialchars($row['amount']) ?></td><td><?= htmlspecialchars($row['symbol']) ?></td><?php endif; ?>
+                <td><span title="<?= htmlspecialchars($row['hash']) ?>"><?= htmlspecialchars($short($row['hash'])) ?></span></td>
               </tr>
             <?php endforeach; ?>
           </tbody>
         </table>
-        <?php if (count($account_blocks) > MAX_BLOCK_ROWS): ?>
-          <p class="tx-note">Showing the first <?= MAX_BLOCK_ROWS ?> of <?= number_format(count($account_blocks)) ?> account blocks.</p>
+        <?php if ($block_pages > 1):
+          $link_height = (string)($height ?? '1');
+          $window = array_unique(array_filter(
+              [1, $block_page - 2, $block_page - 1, $block_page, $block_page + 1, $block_page + 2, $block_pages],
+              fn($n) => $n >= 1 && $n <= $block_pages
+          ));
+          sort($window); ?>
+          <p class="tx-note">Account blocks <?= number_format($first_block + 1) ?>–<?= number_format(min($first_block + BLOCKS_PER_PAGE, count($account_blocks))) ?> of <?= number_format(count($account_blocks)) ?></p>
+          <nav aria-label="Account block pages">
+            <ul class="pagination justify-content-center">
+              <li class="page-item page-mobile<?= $block_page <= 1 ? ' disabled' : '' ?>">
+                <a class="page-link" href="<?= $block_page <= 1 ? '#' : e(blocks_page_url($link_height, 1)) ?>" aria-label="First page"><i class="bi bi-chevron-double-left fs-6" aria-hidden="true"></i></a>
+              </li>
+              <li class="page-item<?= $block_page <= 1 ? ' disabled' : '' ?>">
+                <a class="page-link" href="<?= $block_page <= 1 ? '#' : e(blocks_page_url($link_height, $block_page - 1)) ?>" aria-label="Previous page"><i class="bi bi-chevron-left fs-6" aria-hidden="true"></i></a>
+              </li>
+              <?php $previous = 0; foreach ($window as $n): ?>
+                <?php if ($n > $previous + 1): ?><li class="page-item page-number disabled"><span class="page-link">…</span></li><?php endif; ?>
+                <li class="page-item page-number<?= $n === $block_page ? ' active' : '' ?>">
+                  <a class="page-link" href="<?= e(blocks_page_url($link_height, $n)) ?>"<?= $n === $block_page ? ' aria-current="page"' : '' ?>><?= $n ?></a>
+                </li>
+              <?php $previous = $n; endforeach; ?>
+              <li class="page-item page-mobile page-status" aria-hidden="true"><span class="page-link"><?= $block_page ?> / <?= $block_pages ?></span></li>
+              <li class="page-item<?= $block_page >= $block_pages ? ' disabled' : '' ?>">
+                <a class="page-link" href="<?= $block_page >= $block_pages ? '#' : e(blocks_page_url($link_height, $block_page + 1)) ?>" aria-label="Next page"><i class="bi bi-chevron-right fs-6" aria-hidden="true"></i></a>
+              </li>
+              <li class="page-item page-mobile<?= $block_page >= $block_pages ? ' disabled' : '' ?>">
+                <a class="page-link" href="<?= $block_page >= $block_pages ? '#' : e(blocks_page_url($link_height, $block_pages)) ?>" aria-label="Last page"><i class="bi bi-chevron-double-right fs-6" aria-hidden="true"></i></a>
+              </li>
+            </ul>
+          </nav>
         <?php endif; ?>
       <?php endif; ?>
     </section>
