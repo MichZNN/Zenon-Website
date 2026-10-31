@@ -496,8 +496,10 @@ a:hover, a:focus { color: var(--text); }
 }
 .site-footer p { margin: 0; color: var(--muted); font-size: 0.875rem; }
 .site-footer-meta { display: grid; gap: 0.35rem; text-align: right; }
-.footer-momentum b { color: var(--text); font-weight: 600; margin-left: 0.25rem; }
-@media (max-width: 680px) { .site-footer-meta { text-align: left; } }
+.footer-momentum { display: inline-flex; align-items: center; gap: 0.45rem; white-space: nowrap; }
+.footer-momentum i { color: var(--muted); font-size: 0.8rem; }
+.footer-momentum b { color: var(--text); font-weight: 600; }
+@media (max-width: 680px) { .site-footer-inner { flex-wrap: nowrap; } }
 .site-footer a { color: var(--text); }
 .site-footer a:hover, .site-footer a:focus { color: var(--balances); }
 

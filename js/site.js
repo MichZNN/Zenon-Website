@@ -76,7 +76,7 @@
                     momentum.classList.remove('skeleton', 'skeleton-price');
                     momentum.removeAttribute('aria-label');
                     if (payload.timestamp) {
-                        momentum.title = 'Produced ' + new Date(payload.timestamp * 1000).toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
+                        momentum.closest('[data-momentum]').title = 'Momentum height, produced ' + new Date(payload.timestamp * 1000).toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
                     }
                 })
                 .catch(() => {
