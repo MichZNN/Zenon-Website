@@ -25,4 +25,4 @@ $page_url    = 'https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/' . ($too
 <link href="lib/bootstrap@5.3.6/css/bootstrap.min.css" rel="stylesheet">
 <link href="lib/fontawesome@6.7.2/css/all.min.css" rel="stylesheet">
 <link href="lib/twbs@1.13.1/icons/font/bootstrap-icons.min.css" rel="stylesheet">
-<link href="css/site.css" rel="stylesheet">
+<link href="<?= e(asset('css/site.css')) ?>" rel="stylesheet">

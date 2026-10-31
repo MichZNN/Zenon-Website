@@ -8,4 +8,4 @@
     <p>Data from our own Zenon node, with <a href="https://zenonhub.io">Zenon Hub</a> as backup. Prices from DexScreener, refreshed every ten minutes.</p>
   </div>
 </footer>
-<script src="js/site.js"></script>
+<script src="<?= e(asset('js/site.js')) ?>"></script>

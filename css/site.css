@@ -657,6 +657,8 @@ a:hover, a:focus { color: var(--text); }
     to { background-position: -100% 0; }
 }
 .skeleton-price { width: 4.2em; height: 0.95em; vertical-align: -0.12em; }
+/* As soon as a price is filled in, the placeholder look goes away, whatever script set it. */
+.skeleton:not(:empty) { width: auto; height: auto; background: none; animation: none; vertical-align: baseline; }
 .loading-placeholder {
     display: grid;
     gap: 12px;
