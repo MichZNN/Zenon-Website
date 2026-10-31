@@ -36,6 +36,14 @@ const TOOLS = [
         'input'    => 'One or more addresses',
         'group'    => 'address',
     ],
+    'transaction-history' => [
+        'title'    => 'Transaction history',
+        'summary'  => 'Incoming and outgoing transfers for a period, as a table or CSV file.',
+        'intro'    => 'View the incoming and outgoing transfers of an address for a period, and download them as a CSV file for your records or tax return. Dates and times are in UTC.',
+        'category' => 'balances',
+        'input'    => 'One address',
+        'group'    => 'address',
+    ],
     'liquidity-stake-entries' => [
         'title'    => 'Liquidity stake entries',
         'summary'  => 'Liquidity staking entries with start, revoke and expiry times.',

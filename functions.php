@@ -203,6 +203,20 @@ function detailed_momentums_by_height(int $height = 1,
 }
 
 
+/* ACCOUNT BLOCKS
+ * Transactions of an address, newest first. page_index starts at 0. */
+function account_blocks_by_page(string $address, int $page_index = 0, int $page_size = 1000): array
+{
+    return api_get(build_url(
+        'https://zenonhub.io/api/nom/ledger/get-account-blocks-by-page',
+        [
+            'address'    => $address,
+            'page_index' => max(0, $page_index),
+            'page_size'  => $page_size,
+        ]
+    ));
+}
+
 /* ACCOUNT BALANCES */
 function account_info_by_address(string $address): array
 {

@@ -584,3 +584,61 @@ a:hover, a:focus { color: var(--text); }
 
 /* Totals tables (label + amount, no header): amounts right-aligned on one line. */
 .table:not(:has(thead)):not(.sentinel-status-table) td:last-child { text-align: right; white-space: nowrap; }
+
+/* ---------- Transaction history ---------- */
+
+.lookup-form:has(.date-field) { align-items: end; }
+.date-field { display: grid; gap: 4px; margin: 0; min-width: 0; }
+.date-field span { color: var(--muted); font-size: 0.8rem; font-weight: 600; }
+.lookup .date-field .form-control { min-width: 10.5rem; color-scheme: dark; }
+
+.period-presets { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.period-preset {
+    min-height: 36px;
+    padding: 0 0.9rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text);
+    font: 600 0.85rem/1 var(--body);
+    cursor: pointer;
+}
+.period-preset:hover { border-color: var(--accent); }
+
+.tx-summary-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+.tx-summary-head .responsive-title { margin-bottom: 0.25rem; }
+.tx-period { margin: 0; font-family: var(--display); font-size: 1.35rem; font-weight: 650; line-height: 1.2; letter-spacing: -0.01em; }
+.tx-downloads { display: flex; flex-wrap: wrap; gap: 10px; }
+.tx-downloads .btn { text-decoration: none; }
+.tx-download-alt {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 48px;
+    padding-inline: 1.1rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-s);
+    background: var(--panel);
+    color: var(--text);
+    font-weight: 650;
+    white-space: nowrap;
+}
+.tx-download-alt:hover, .tx-download-alt:focus-visible { border-color: var(--accent); color: var(--text); }
+.tx-note { margin: 0 0 1.25rem; color: var(--muted); font-size: 0.9rem; max-width: 70ch; }
+.tx-dir { font-weight: 600; white-space: nowrap; }
+.tx-dir-in { color: var(--good); }
+.tx-dir-out { color: var(--bridge); }
+
+@media (max-width: 680px) {
+    .lookup-filters { width: 100%; }
+    .lookup .date-field .form-control { min-width: 0; width: 100%; }
+    .tx-downloads, .tx-downloads .btn { width: 100%; }
+    .tx-downloads .btn { justify-content: center; }
+}
