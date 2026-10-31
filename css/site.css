@@ -642,3 +642,38 @@ a:hover, a:focus { color: var(--text); }
     .tx-downloads, .tx-downloads .btn { width: 100%; }
     .tx-downloads .btn { justify-content: center; }
 }
+
+/* ---------- Loading placeholders ---------- */
+
+.skeleton {
+    display: inline-block;
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--panel) 0%, var(--line-strong) 50%, var(--panel) 100%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes skeleton-shimmer {
+    from { background-position: 100% 0; }
+    to { background-position: -100% 0; }
+}
+.skeleton-price { width: 4.2em; height: 0.95em; vertical-align: -0.12em; }
+.loading-placeholder {
+    display: grid;
+    gap: 12px;
+    padding: 1.25rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-m);
+    background: var(--panel);
+}
+.skeleton-line { display: block; height: 1.1rem; width: 100%; }
+.skeleton-line:nth-child(odd) { width: 92%; }
+.skeleton-title { height: 1.5rem; width: 45%; margin-bottom: 6px; }
+.lookup-btn.is-loading { opacity: 0.85; pointer-events: none; }
+.lookup-btn.is-loading i { animation: skeleton-spin 0.9s linear infinite; }
+.lookup-btn.is-loading i::before { content: "\f110"; }
+@keyframes skeleton-spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+    .skeleton { animation: none; background: var(--line-strong); }
+    .lookup-btn.is-loading i { animation: none; }
+}

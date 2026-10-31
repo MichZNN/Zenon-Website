@@ -8,8 +8,8 @@
     </a>
 
     <p class="ticker" data-prices role="status" title="USD prices">
-      <span data-symbol="ZNN">ZNN <b>–</b></span>
-      <span data-symbol="QSR">QSR <b>–</b></span>
+      <span data-symbol="ZNN">ZNN <b class="skeleton skeleton-price" aria-label="Loading"></b></span>
+      <span data-symbol="QSR">QSR <b class="skeleton skeleton-price" aria-label="Loading"></b></span>
     </p>
 
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="toolMenu">

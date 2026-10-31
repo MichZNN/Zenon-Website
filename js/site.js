@@ -29,7 +29,10 @@
     if (ticker) {
         const show = (symbol, text) => {
             const slot = ticker.querySelector(`[data-symbol="${symbol}"] b`);
-            if (slot) slot.textContent = text;
+            if (!slot) return;
+            slot.textContent = text;
+            slot.classList.remove('skeleton', 'skeleton-price');
+            slot.removeAttribute('aria-label');
         };
         fetch('api/prices.php')
             .then((response) => {
@@ -50,9 +53,61 @@
                     : 'USD prices. ZNN may be calculated from the QSR/ZNN market.';
             })
             .catch(() => {
+                show('ZNN', '–');
+                show('QSR', '–');
                 ticker.title = 'The price provider is currently unavailable.';
             });
     }
+
+    /* Lookups: leave empty fields out of the link, and show placeholders while the result loads. */
+    document.querySelectorAll('.lookup-form').forEach((form) => {
+        form.addEventListener('submit', (event) => {
+            if (event.defaultPrevented) return;
+            form.querySelectorAll('input[name], select[name]').forEach((field) => {
+                if (field.value.trim() === '' && !field.required) field.disabled = true;
+            });
+            showLoading(form);
+        });
+    });
+
+    function showLoading(form) {
+        const button = form.querySelector('.lookup-btn');
+        if (button) {
+            button.classList.add('is-loading');
+            button.setAttribute('aria-busy', 'true');
+            const label = button.querySelector('span');
+            if (label) label.textContent = 'Loading';
+        }
+        const lookup = form.closest('.lookup');
+        if (!lookup) return;
+        let sibling = lookup.nextElementSibling;
+        while (sibling) {
+            sibling.hidden = true;
+            sibling = sibling.nextElementSibling;
+        }
+        if (!document.querySelector('.loading-placeholder')) {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'loading-placeholder';
+            placeholder.setAttribute('aria-label', 'Loading results');
+            placeholder.innerHTML = '<span class="skeleton skeleton-line skeleton-title"></span>'
+                + '<span class="skeleton skeleton-line"></span>'.repeat(6);
+            lookup.after(placeholder);
+        }
+    }
+
+    /* Coming back with the browser's Back button shows the page as it was, not the loading state. */
+    window.addEventListener('pageshow', (event) => {
+        if (!event.persisted) return;
+        document.querySelectorAll('.loading-placeholder').forEach((node) => node.remove());
+        document.querySelectorAll('.lookup ~ [hidden]').forEach((node) => { node.hidden = false; });
+        document.querySelectorAll('.lookup-form [disabled]').forEach((field) => { field.disabled = false; });
+        document.querySelectorAll('.lookup-btn.is-loading').forEach((button) => {
+            button.classList.remove('is-loading');
+            button.removeAttribute('aria-busy');
+            const label = button.querySelector('span');
+            if (label) label.textContent = 'Look up';
+        });
+    });
 
     /* Give each cell the name of its column, so tables can stack into rows on phones. */
     const stackTables = [];

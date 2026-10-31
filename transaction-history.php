@@ -341,7 +341,7 @@ document.querySelectorAll('.period-preset').forEach(function (button) {
         form.elements.from.value = button.dataset.from;
         form.elements.to.value = button.dataset.to;
         if (form.elements.address.value.trim()) {
-            form.submit();
+            if (form.requestSubmit) { form.requestSubmit(); } else { form.submit(); }
         } else {
             form.elements.address.focus();
         }
