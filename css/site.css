@@ -689,3 +689,22 @@ a:hover, a:focus { color: var(--text); }
 .data-decoded { display: block; margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px dashed var(--line-strong); color: var(--text); }
 .data-decoded span { display: block; color: var(--muted); font-size: 0.8rem; font-weight: 600; }
 .cell-stack { display: block; min-width: 0; }
+
+/* One record per row, label beside the value: for a single momentum with long hashes. */
+.table.record-table thead { display: none; }
+.table.record-table, .table.record-table tbody, .table.record-table tr { display: block; width: 100%; }
+.table.record-table tbody td {
+    display: grid;
+    grid-template-columns: 11rem minmax(0, 1fr);
+    gap: 1rem;
+    width: 100%;
+    text-align: left;
+}
+.table.record-table td[data-label]::before { content: attr(data-label); color: var(--muted); font-size: 0.85rem; font-weight: 600; }
+.table.record-table .num { text-align: left; }
+.table.record-table > tbody > tr > td { padding: 0.85rem 1rem; border-bottom: 1px solid var(--line); }
+.table.record-table > tbody > tr > td:last-child { border-bottom: 0; }
+@media (max-width: 680px) {
+    .table.record-table tbody td { grid-template-columns: minmax(0, 1fr); gap: 0.3rem; }
+    .table.record-table > tbody > tr > td:first-child { padding-left: 1rem; }
+}

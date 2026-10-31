@@ -86,7 +86,7 @@ if (!empty($_GET['height'])) {
         echo '<div class="alert alert-warning">' . $output . '</div>' . PHP_EOL;
     }
   ?>
-  <table class="table">
+  <table class="table record-table">
       <thead>
           <tr>
               <th scope="col">Hash</th>

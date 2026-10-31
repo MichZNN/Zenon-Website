@@ -168,7 +168,7 @@
                 if (headers[index]) cell.setAttribute('data-label', headers[index]);
             });
         });
-        stackTables.push({ table, columns: headers.length });
+        if (!table.classList.contains('record-table')) stackTables.push({ table, columns: headers.length });
     });
 
     /* On phones, tables that don't fit unwrapped stack into records; tables that fit stay tables. */
