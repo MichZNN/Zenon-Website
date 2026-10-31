@@ -203,7 +203,12 @@ function csv_link(string $sep): string
 }
 
 $this_year = (int)gmdate('Y');
+$today     = new DateTimeImmutable('today', new DateTimeZone('UTC'));
 $presets = [
+    // Previous full week, Monday to Sunday
+    'Last week'              => [$today->modify('monday last week')->format('Y-m-d'), $today->modify('sunday last week')->format('Y-m-d')],
+    // Previous full calendar month
+    'Last month'             => [$today->modify('first day of last month')->format('Y-m-d'), $today->modify('last day of last month')->format('Y-m-d')],
     (string)($this_year - 1) => [($this_year - 1) . '-01-01', ($this_year - 1) . '-12-31'],
     (string)$this_year       => [$this_year . '-01-01', gmdate('Y-m-d')],
     'All time'               => ['', ''],
