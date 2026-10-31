@@ -76,32 +76,86 @@ function build_url(string $base, array $query = []): string
     return $base . ($query ? '?' . http_build_query($query) : '');
 }
 
+/* NODE RPC
+ * Data comes from our own Zenon node over JSON-RPC. If the node can't be reached
+ * or returns an error, the same question goes to the Zenon Hub API instead.
+ * Both return the same shape, wrapped here as ['data' => ...]. */
+const ZENONHUB_API = 'https://zenonhub.io/api/nom/';
+
+function node_rpc_url(): string
+{
+    $url = getenv('ZNN_NODE_RPC_URL');
+    return is_string($url) && $url !== '' ? $url : 'http://127.0.0.1:36097';
+}
+
+function node_rpc(string $method, array $params = []): array
+{
+    $payload = json_encode(['jsonrpc' => '2.0', 'id' => 1, 'method' => $method, 'params' => $params]);
+    $ch = curl_init(node_rpc_url());
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => $payload,
+        CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
+        CURLOPT_CONNECTTIMEOUT => 2,
+        CURLOPT_TIMEOUT        => 15,
+    ]);
+    $response = curl_exec($ch);
+    $status   = (int)curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+    $error    = curl_error($ch);
+    curl_close($ch);
+
+    if ($response === false || $status !== 200) {
+        return ['error' => $error !== '' ? $error : "Node returned HTTP $status"];
+    }
+    $decoded = json_decode($response, true);
+    if (!is_array($decoded)) {
+        return ['error' => 'The node returned an invalid JSON response.'];
+    }
+    if (isset($decoded['error'])) {
+        return ['error' => (string)($decoded['error']['message'] ?? 'Node RPC error')];
+    }
+    if (!array_key_exists('result', $decoded)) {
+        return ['error' => 'The node returned no result.'];
+    }
+    return ['data' => $decoded['result'], 'source' => 'node'];
+}
+
+/* Ask the node first; fall back to Zenon Hub with the equivalent request. */
+function chain_query(string $method, array $params, string $hub_path, array $hub_query): array
+{
+    $result = node_rpc($method, $params);
+    if (!isset($result['error'])) {
+        return $result;
+    }
+    $fallback = api_get(build_url(ZENONHUB_API . $hub_path, $hub_query));
+    if (is_array($fallback) && !isset($fallback['error']) && !isset($fallback['title'])) {
+        $fallback['source'] = 'zenonhub';
+    }
+    return $fallback;
+}
+
 /*  FRONTIER REWARD  */
 function frontier_reward(string $address,
                          string $type      = 'pillar',
                          int    $page      = 1,
                          int    $per_page  = 25): array
 {
-    $url = build_url(
-        "https://zenonhub.io/api/nom/{$type}/get-frontier-reward-by-page",
-        [
-            'address'   => $address,
-            'page'      => max(0, $page - 1),
-            'per_page'  => $per_page,
-        ]
+    $page_index = max(0, $page - 1);
+    return chain_query(
+        "embedded.{$type}.getFrontierRewardByPage", [$address, $page_index, $per_page],
+        "{$type}/get-frontier-reward-by-page", ['address' => $address, 'page' => $page_index, 'per_page' => $per_page]
     );
-    return api_get($url);
 }
 
 /*  UNCOLLECTED REWARDS  */
 function uncollected_rewards(string $address,
                              string $type = 'pillar'): array
 {
-    $url = build_url(
-        "https://zenonhub.io/api/nom/{$type}/get-uncollected-reward",
-        ['address' => $address]
+    return chain_query(
+        "embedded.{$type}.getUncollectedReward", [$address],
+        "{$type}/get-uncollected-reward", ['address' => $address]
     );
-    return api_get($url);
 }
 
 /*  LIQUIDITY STAKE ENTRIES  */
@@ -109,25 +163,20 @@ function liquidity_stake_entries(string $address,
                                  int $page_index = 1,
                                  int $page_size  = 1000): array
 {
-    $url = build_url(
-        'https://zenonhub.io/api/nom/liquidity/get-liquidity-stake-entries-by-address',
-        [
-            'address'     => $address,
-            'page_index'  => max(0, $page_index - 1),
-            'page_size'   => $page_size,
-        ]
+    $page_index = max(0, $page_index - 1);
+    return chain_query(
+        'embedded.liquidity.getLiquidityStakeEntriesByAddress', [$address, $page_index, $page_size],
+        'liquidity/get-liquidity-stake-entries-by-address', ['address' => $address, 'page_index' => $page_index, 'page_size' => $page_size]
     );
-    return api_get($url);
 }
 
 /*  TOKEN BY ZTS  */
 function token_by_zts(string $token): array
 {
-    $url = build_url(
-        'https://zenonhub.io/api/nom/token/get-by-zts',
-        ['token' => $token]
+    return chain_query(
+        'embedded.token.getByZts', [$token],
+        'token/get-by-zts', ['token' => $token]
     );
-    return api_get($url);
 }
 
 /*  UNWRAP TOKEN REQUESTS  */
@@ -135,98 +184,82 @@ function unwrap_token_requests(string $to_address,
                                int $page_index = 1,
                                int $page_size  = 1000): array
 {
-    $url = build_url(
-        'https://zenonhub.io/api/nom/bridge/get-all-unwrap-token-requests-by-to-address',
-        [
-            'to_address'  => $to_address,
-            'page_index'  => max(0, $page_index - 1),
-            'page_size'   => $page_size,
-        ]
+    $page_index = max(0, $page_index - 1);
+    return chain_query(
+        'embedded.bridge.getAllUnwrapTokenRequestsByToAddress', [$to_address, $page_index, $page_size],
+        'bridge/get-all-unwrap-token-requests-by-to-address', ['to_address' => $to_address, 'page_index' => $page_index, 'page_size' => $page_size]
     );
-    return api_get($url);
 }
 
 /* ALL UNSIGNED WRAP TOKEN REQUESTS */
 function all_unsigned_wrap_token_requests(int $page_index = 1,
                                int $page_size  = 1000): array
 {
-    $url = build_url(
-        'https://zenonhub.io/api/nom/bridge/get-all-unsigned-wrap-token-requests',
-        [
-            'page_index'  => max(0, $page_index - 1),
-            'page_size'   => $page_size,
-        ]
+    $page_index = max(0, $page_index - 1);
+    return chain_query(
+        'embedded.bridge.getAllUnsignedWrapTokenRequests', [$page_index, $page_size],
+        'bridge/get-all-unsigned-wrap-token-requests', ['page_index' => $page_index, 'page_size' => $page_size]
     );
-    return api_get($url);
 }
 
 /* ALL UNWRAP TOKEN REQUESTS */
 function all_unwrap_token_requests(int $page_index = 1,
                                int $page_size  = 1000): array
 {
-    $url = build_url(
-        'https://zenonhub.io/api/nom/bridge/get-all-unwrap-token-requests',
-        [
-            'page_index'  => max(0, $page_index - 1),
-            'page_size'   => $page_size,
-        ]
+    $page_index = max(0, $page_index - 1);
+    return chain_query(
+        'embedded.bridge.getAllUnwrapTokenRequests', [$page_index, $page_size],
+        'bridge/get-all-unwrap-token-requests', ['page_index' => $page_index, 'page_size' => $page_size]
     );
-    return api_get($url);
 }
 
 /* MOMENTUMS BY HEIGHT */
 function momentums_by_height(int $height = 1,
                                int $count  = 10): array
 {
-    $url = build_url(
-        'https://zenonhub.io/api/nom/ledger/get-momentums-by-height',
-        [
-            'height'  => $height,
-            'count'   => $count,
-        ]
+    return chain_query(
+        'ledger.getMomentumsByHeight', [$height, $count],
+        'ledger/get-momentums-by-height', ['height' => $height, 'count' => $count]
     );
-    return api_get($url);
 }
 
 /* DETAILED MOMENTUMS BY HEIGHT */
 function detailed_momentums_by_height(int $height = 1,
                                int $count  = 10): array
 {
-    $url = build_url(
-        'https://zenonhub.io/api/nom/ledger/get-detailed-momentums-by-height',
-        [
-            'height'  => $height,
-            'count'   => $count,
-        ]
+    return chain_query(
+        'ledger.getDetailedMomentumsByHeight', [$height, $count],
+        'ledger/get-detailed-momentums-by-height', ['height' => $height, 'count' => $count]
     );
-    return api_get($url);
 }
-
 
 /* ACCOUNT BLOCKS
  * Transactions of an address, newest first. page_index starts at 0. */
 function account_blocks_by_page(string $address, int $page_index = 0, int $page_size = 1000): array
 {
-    return api_get(build_url(
-        'https://zenonhub.io/api/nom/ledger/get-account-blocks-by-page',
-        [
-            'address'    => $address,
-            'page_index' => max(0, $page_index),
-            'page_size'  => $page_size,
-        ]
-    ));
+    $page_index = max(0, $page_index);
+    return chain_query(
+        'ledger.getAccountBlocksByPage', [$address, $page_index, $page_size],
+        'ledger/get-account-blocks-by-page', ['address' => $address, 'page_index' => $page_index, 'page_size' => $page_size]
+    );
 }
 
 /* ACCOUNT BALANCES */
 function account_info_by_address(string $address): array
 {
-    return api_get(build_url('https://zenonhub.io/api/nom/ledger/get-account-info-by-address', ['address' => $address]));
+    return chain_query(
+        'ledger.getAccountInfoByAddress', [$address],
+        'ledger/get-account-info-by-address', ['address' => $address]
+    );
 }
 
 /* SENTINEL REGISTRATION AND REVOCATION STATUS */
 function sentinel_by_owner(string $address): array
 {
-    return api_get(build_url('https://zenonhub.io/api/nom/sentinel/get-by-owner', ['address' => $address]));
+    return chain_query(
+        'embedded.sentinel.getByOwner', [$address],
+        'sentinel/get-by-owner', ['address' => $address]
+    );
 }
 
 function format_cooldown($seconds): string
