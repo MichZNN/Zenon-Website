@@ -100,7 +100,15 @@ if (!ctype_digit($height_query) || (int)$height_query < 1) {
             foreach ($data_array['data']['list'] as $data) {
                 
                 $momentum = $data['momentum'];
-                $account_blocks = $data['accountBlocks'] ?? null;
+                // The node calls the list "blocks"; the stored genesis file uses "accountBlocks".
+                // A momentum without blocks may come back as null: that means none, not unavailable.
+                if (array_key_exists('blocks', $data)) {
+                    $account_blocks = is_array($data['blocks']) ? $data['blocks'] : [];
+                } elseif (array_key_exists('accountBlocks', $data)) {
+                    $account_blocks = is_array($data['accountBlocks']) ? $data['accountBlocks'] : null;
+                } else {
+                    $account_blocks = null;
+                }
                 
                 if (isset($momentum)) {
 
