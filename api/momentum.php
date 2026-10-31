@@ -7,7 +7,7 @@ require_once __DIR__ . '/../functions.php';
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 
-$response = chain_query('ledger.getFrontierMomentum', [], 'ledger/get-frontier-momentum', []);
+$response = node_rpc('ledger.getFrontierMomentum');
 $momentum = $response['data'] ?? null;
 
 if (!is_array($momentum) || !isset($momentum['height'])) {

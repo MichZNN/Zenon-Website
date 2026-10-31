@@ -19,7 +19,7 @@ The [Detailed momentums by height](detailed-momentums-by-height.php) page displa
 
 ## Data and behavior
 
-Network data comes from our own Zenon node over JSON-RPC (`http://127.0.0.1:36097`, or the `ZNN_NODE_RPC_URL` environment variable). If the node does not answer, the same request goes to the Zenon Hub API. Search results use URL parameters, allowing queries to be bookmarked or shared. Multi-address lookups retain successful results when another address fails.
+Network data comes from Zenon nodes over JSON-RPC: our own node (`http://127.0.0.1:36097`) first, then the public nodes `node.atsocy.com` and `my.hc1node.com` as backup. Set `ZNN_NODE_RPC_URLS` (comma separated) to use other nodes. Search results use URL parameters, allowing queries to be bookmarked or shared. Multi-address lookups retain successful results when another address fails.
 
 The Sentinel revocation page displays status; it does not submit revocation transactions. Registration timestamps use ISO 8601 UTC, and cooldowns are shown in weeks, days, hours and minutes.
 
