@@ -272,7 +272,7 @@ $presets = [
         <?php endif; ?>
       </div>
       <?php if ($rows): ?>
-        <p class="tx-note">Comma: amounts with a decimal point, for most tax tools and Google Sheets. Semicolon: amounts with a decimal comma, for Excel with Dutch or other European settings.</p>
+        <p class="tx-note">Comma: amounts with a decimal point, for most tax tools and Google Sheets. Semicolon: amounts with a decimal comma, for Excel in regions that write numbers with a decimal comma.</p>
       <?php endif; ?>
 
       <?php if ($truncated): ?>
