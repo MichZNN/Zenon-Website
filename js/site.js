@@ -152,7 +152,8 @@
         headers.forEach((_, index) => {
             if (index === 0) return; /* the first column names the row (epoch, type, address) */
             const values = rows.map((row) => row.children[index].textContent.trim()).filter(Boolean);
-            if (values.length && values.every((value) => /^-?[\d.,]+$/.test(value))) {
+            /* Real amounts only: long digit strings such as an all-zero hash must still wrap. */
+            if (values.length && values.every((value) => value.length <= 32 && /^-?[\d.,]+$/.test(value))) {
                 table.querySelectorAll(`tr > :nth-child(${index + 1})`).forEach((cell) => cell.classList.add('num'));
             }
         });

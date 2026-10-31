@@ -48,7 +48,9 @@ if (!empty($_GET['height'])) {
                        '<td>' . (isset($momentum['previousHash']) ? htmlspecialchars($momentum['previousHash']) : '') . '</td>' . PHP_EOL .
                        '<td>' . (isset($momentum['height']) ? htmlspecialchars($momentum['height']) : '') . '</td>' . PHP_EOL .
                        '<td>' . (isset($momentum['timestamp']) ? (new DateTime('@' . $momentum['timestamp']))->format('Y-m-d H:i:s') : '') . '</td>' . PHP_EOL .
-                       '<td>' . (isset($momentum['data']) ? htmlspecialchars($momentum['data']) : '') . '</td>' . PHP_EOL .
+                       '<td><span class="cell-stack">' . (isset($momentum['data']) ? htmlspecialchars($momentum['data']) : '')
+                            . (isset($momentum['dataDecoded']) ? '<span class="data-decoded"><span>Decoded</span>' . htmlspecialchars($momentum['dataDecoded']) . '</span>' : '')
+                            . '</span></td>' . PHP_EOL .
                        '<td>' . (isset($momentum['producer']) ? htmlspecialchars($momentum['producer']) : '') . '</td>' . PHP_EOL .
                     '</tr>' . PHP_EOL;
                 }
