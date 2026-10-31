@@ -33,7 +33,17 @@ const BLOCK_TYPE_NAMES = [
     4 => 'Contract send',
     5 => 'Contract receive',
 ];
-const MAX_BLOCK_ROWS = 500;
+const BLOCKS_PER_PAGE = 100;
+
+/* Page links for the account blocks, keeping the height in the link. */
+function blocks_page_url(string $height, int $page): string
+{
+    $query = ['height' => $height];
+    if ($page > 1) {
+        $query['page'] = $page;
+    }
+    return '?' . http_build_query($query) . '#account-blocks-title';
+}
 
 /* Amount and token of an account block; a receive takes them from the send it receives. */
 function block_transfer(array $block): array
@@ -178,7 +188,11 @@ if (!ctype_digit($height_query) || (int)$height_query < 1) {
             </tr>
           </thead>
           <tbody>
-            <?php foreach (array_slice($account_blocks, 0, MAX_BLOCK_ROWS) as $block): if (!is_array($block)) continue;
+            <?php
+              $block_pages = max(1, (int)ceil(count($account_blocks) / BLOCKS_PER_PAGE));
+              $block_page  = min(max(1, $page), $block_pages);
+              $first_block = ($block_page - 1) * BLOCKS_PER_PAGE;
+              foreach (array_slice($account_blocks, $first_block, BLOCKS_PER_PAGE) as $block): if (!is_array($block)) continue;
               [$block_amount, $block_symbol] = block_transfer($block);
               $block_type = (int)($block['blockType'] ?? 0);
               $block_address = (string)($block['address'] ?? '');
@@ -195,8 +209,30 @@ if (!ctype_digit($height_query) || (int)$height_query < 1) {
             <?php endforeach; ?>
           </tbody>
         </table>
-        <?php if (count($account_blocks) > MAX_BLOCK_ROWS): ?>
-          <p class="tx-note">Showing the first <?= MAX_BLOCK_ROWS ?> of <?= number_format(count($account_blocks)) ?> account blocks.</p>
+        <?php if ($block_pages > 1):
+          $link_height = (string)($height ?? '1');
+          $window = array_unique(array_filter(
+              [1, $block_page - 2, $block_page - 1, $block_page, $block_page + 1, $block_page + 2, $block_pages],
+              fn($n) => $n >= 1 && $n <= $block_pages
+          ));
+          sort($window); ?>
+          <p class="tx-note">Account blocks <?= number_format($first_block + 1) ?>–<?= number_format(min($first_block + BLOCKS_PER_PAGE, count($account_blocks))) ?> of <?= number_format(count($account_blocks)) ?></p>
+          <nav aria-label="Account block pages">
+            <ul class="pagination justify-content-center">
+              <li class="page-item<?= $block_page <= 1 ? ' disabled' : '' ?>">
+                <a class="page-link" href="<?= $block_page <= 1 ? '#' : e(blocks_page_url($link_height, $block_page - 1)) ?>" aria-label="Previous page"><i class="bi bi-chevron-left fs-6" aria-hidden="true"></i></a>
+              </li>
+              <?php $previous = 0; foreach ($window as $n): ?>
+                <?php if ($n > $previous + 1): ?><li class="page-item disabled"><span class="page-link">…</span></li><?php endif; ?>
+                <li class="page-item<?= $n === $block_page ? ' active' : '' ?>">
+                  <a class="page-link" href="<?= e(blocks_page_url($link_height, $n)) ?>"<?= $n === $block_page ? ' aria-current="page"' : '' ?>><?= $n ?></a>
+                </li>
+              <?php $previous = $n; endforeach; ?>
+              <li class="page-item<?= $block_page >= $block_pages ? ' disabled' : '' ?>">
+                <a class="page-link" href="<?= $block_page >= $block_pages ? '#' : e(blocks_page_url($link_height, $block_page + 1)) ?>" aria-label="Next page"><i class="bi bi-chevron-right fs-6" aria-hidden="true"></i></a>
+              </li>
+            </ul>
+          </nav>
         <?php endif; ?>
       <?php endif; ?>
     </section>
