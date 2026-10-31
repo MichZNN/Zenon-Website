@@ -6,7 +6,7 @@
       <span><?= e(SITE_NAME) ?></span>
     </a>
     <div class="site-footer-meta">
-      <p class="footer-momentum" data-momentum>Momentum height <b class="skeleton skeleton-price" aria-label="Loading"></b></p>
+      <p class="footer-momentum" data-momentum title="Momentum height"><i class="fa-solid fa-cube" aria-hidden="true"></i><span class="visually-hidden">Momentum height</span><b class="skeleton skeleton-price" aria-label="Loading"></b></p>
     </div>
   </div>
 </footer>
