@@ -112,6 +112,13 @@ function current_tool(): ?array
     return TOOLS[current_tool_slug()] ?? null;
 }
 
+/* Link to a CSS or JS file with its change time, so browsers fetch a new copy after every deploy. */
+function asset(string $path): string
+{
+    $modified = @filemtime(__DIR__ . '/../' . $path);
+    return $path . ($modified ? '?v=' . $modified : '');
+}
+
 function e(string $value): string
 {
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
