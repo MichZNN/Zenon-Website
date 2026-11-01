@@ -49,11 +49,6 @@ jobs:
           echo "Deploy folder contents:"
           find "$RUNNER_TEMP/deploy" -maxdepth 4 -print | sort
 
-      - name: Install lftp
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y lftp
-
       - name: Prepare SSH key
         run: |
           mkdir -p ~/.ssh
@@ -62,9 +57,22 @@ jobs:
           ssh-keyscan -p "${{ secrets.SFTP_PORT }}" "${{ secrets.SFTP_SERVER }}" >> ~/.ssh/known_hosts
 
       - name: Deploy via SFTP
+        # Uses the OpenSSH sftp client that is already on the runner, so nothing
+        # has to be installed first (apt-get update could hang for a long time).
+        timeout-minutes: 10
         run: |
-          lftp -u "${{ secrets.SFTP_USERNAME }}," sftp://${{ secrets.SFTP_SERVER }}:${{ secrets.SFTP_PORT }} <<EOF
-          set sftp:connect-program "ssh -a -x -i ~/.ssh/deploy_key"
-          mirror -R "$RUNNER_TEMP/deploy/" "${{ secrets.SFTP_REMOTE_DIR }}/"
-          bye
-          EOF
+          REMOTE_DIR="${{ secrets.SFTP_REMOTE_DIR }}"
+          {
+            echo "-mkdir \"$REMOTE_DIR\""
+            echo "lcd \"$RUNNER_TEMP/deploy\""
+            echo "put -r * \"$REMOTE_DIR/\""
+            echo "bye"
+          } > "$RUNNER_TEMP/sftp-batch.txt"
+          cat "$RUNNER_TEMP/sftp-batch.txt"
+          sftp -b "$RUNNER_TEMP/sftp-batch.txt" \
+            -i ~/.ssh/deploy_key \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o ConnectTimeout=30 \
+            -P "${{ secrets.SFTP_PORT }}" \
+            "${{ secrets.SFTP_USERNAME }}@${{ secrets.SFTP_SERVER }}"
