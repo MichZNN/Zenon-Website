@@ -4,7 +4,8 @@ declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 
-$cacheFile = __DIR__ . '/price_cache.json';
+// Outside the web root: the deploy replaces the whole web root, and www-data cannot write there.
+$cacheFile = rtrim(sys_get_temp_dir(), '/\\') . '/zenon-price-cache.json';
 $cacheDuration = 10 * 60;
 $apiBaseUrl = 'https://api.dexscreener.com/latest/dex/pairs';
 $chain = 'ethereum';
