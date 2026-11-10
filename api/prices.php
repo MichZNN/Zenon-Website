@@ -7,8 +7,9 @@ header('Cache-Control: no-store');
 // Outside the web root: the deploy replaces the whole web root, and www-data cannot write there.
 $cacheFile = rtrim(sys_get_temp_dir(), '/\\') . '/zenon-price-cache.json';
 $cacheDuration = 10 * 60;
-$apiBaseUrl = 'https://api.dexscreener.com/latest/dex/pairs';
-$chain = 'ethereum';
+// GeckoTerminal (free, no key). DexScreener stopped returning these pools.
+$apiBaseUrl = 'https://api.geckoterminal.com/api/v2/networks';
+$network = 'eth';
 
 $pairs = [
     'wznn_weth' => [
@@ -51,9 +52,9 @@ function write_price_cache(string $cacheFile, array $cache): bool
     return file_put_contents($cacheFile, json_encode($cache, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)) !== false;
 }
 
-function fetch_pair(string $apiBaseUrl, string $chain, string $address): array
+function fetch_pair(string $apiBaseUrl, string $network, string $address): array
 {
-    $url = implode('/', [$apiBaseUrl, $chain, $address]);
+    $url = implode('/', [$apiBaseUrl, $network, 'pools', $address]);
 
     if (function_exists('curl_init')) {
         $ch = curl_init($url);
@@ -61,6 +62,7 @@ function fetch_pair(string $apiBaseUrl, string $chain, string $address): array
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_setopt($ch, CURLOPT_FAILONERROR, false);
         curl_setopt($ch, CURLOPT_USERAGENT, 'ZenonTools/1.0');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/json;version=20230302']);
 
         $response = curl_exec($ch);
         if ($response === false) {
@@ -73,13 +75,13 @@ function fetch_pair(string $apiBaseUrl, string $chain, string $address): array
         curl_close($ch);
 
         if ($status >= 400) {
-            return ['error' => 'DexScreener returned HTTP ' . $status];
+            return ['error' => 'GeckoTerminal returned HTTP ' . $status];
         }
     } elseif (in_array('https', stream_get_wrappers(), true)) {
         $context = stream_context_create([
             'http' => [
                 'timeout' => 30,
-                'header' => "User-Agent: ZenonTools/1.0\r\n",
+                'header' => "User-Agent: ZenonTools/1.0\r\nAccept: application/json;version=20230302\r\n",
             ],
         ]);
         $response = @file_get_contents($url, false, $context);
@@ -96,12 +98,28 @@ function fetch_pair(string $apiBaseUrl, string $chain, string $address): array
         return ['error' => 'Invalid JSON response'];
     }
 
-    $pair = $decoded['pair'] ?? ($decoded['pairs'][0] ?? null);
-    if (!is_array($pair) || !isset($pair['priceUsd'])) {
+    $pool = $decoded['data'] ?? null;
+    $attributes = is_array($pool) ? ($pool['attributes'] ?? null) : null;
+    if (!is_array($attributes) || !isset($attributes['base_token_price_usd'])) {
         return ['error' => 'No valid pair price found'];
     }
 
-    return ['pair' => $pair];
+    // Keep the shape the rest of the script (and the cache) uses: base token, quote token and prices.
+    $tokenAddress = static function (?string $id): string {
+        return strtolower(substr((string)$id, strpos((string)$id, '_') !== false ? strpos((string)$id, '_') + 1 : 0));
+    };
+    $baseId = $pool['relationships']['base_token']['data']['id'] ?? null;
+    $quoteId = $pool['relationships']['quote_token']['data']['id'] ?? null;
+    $name = trim(explode(' / ', (string)($attributes['name'] ?? ''))[0]);
+
+    return ['pair' => [
+        'baseToken' => ['address' => $tokenAddress($baseId), 'name' => $name !== '' ? $name : null],
+        'quoteToken' => ['address' => $tokenAddress($quoteId)],
+        'priceUsd' => (string)$attributes['base_token_price_usd'],
+        'priceNative' => isset($attributes['base_token_price_native_currency'])
+            ? (string)$attributes['base_token_price_native_currency']
+            : null,
+    ]];
 }
 
 function normalize_pair(string $key, array $config, array $pair, int $timestamp, string $source): array
@@ -135,7 +153,7 @@ foreach ($pairs as $key => $config) {
         continue;
     }
 
-    $fresh = fetch_pair($apiBaseUrl, $chain, $config['address']);
+    $fresh = fetch_pair($apiBaseUrl, $network, $config['address']);
     if (!isset($fresh['error'])) {
         $timestamp = time();
         $cache[$key] = [
